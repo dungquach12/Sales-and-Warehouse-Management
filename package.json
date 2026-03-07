@@ -1,0 +1,24 @@
+{
+  "name": "revenue-tracker",
+  "version": "1.0.0",
+  "description": "sale management web",
+  "homepage": "https://github.com/dungquach12/Sales-and-Warehouse-Management#readme",
+  "bugs": {
+    "url": "https://github.com/dungquach12/Sales-and-Warehouse-Management/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dungquach12/Sales-and-Warehouse-Management.git"
+  },
+  "license": "ISC",
+  "author": "dungquach12",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
