@@ -1,0 +1,12 @@
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+header {
+  background-color: #EBF4F6;
+}
+
+#navigateBar .navbar-brand,
+#navigateBar .nav-link {
+  color: #09637E !important;
+}
