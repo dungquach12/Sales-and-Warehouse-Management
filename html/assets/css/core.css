@@ -2,11 +2,47 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
+/* Header */
 header {
-  background-color: #EBF4F6;
+  background-color: #ebf4f6;
 }
 
-#navigateBar .navbar-brand,
-#navigateBar .nav-link {
-  color: #09637E !important;
+.navbar-brand {
+  color: #09637e !important;
+}
+
+
+/* Sidebar */
+#sidebar {
+  width: 264px;
+  transition: width 0.5s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  height: calc(100vh - 74.5px);
+}
+
+#sidebar.collapsed {
+  width: 68px;
+}
+
+#sidebar.collapsed span {
+  opacity: 0;
+  display: none;
+  transition:
+    opacity 0.2s ease,
+    display 0s 0.3s;
+}
+
+.nav-pills .nav-link.active {
+  color: black;
+  background-color: whitesmoke; 
+  border-radius: 0%;
+}
+
+.optionLabel {
+  font-size: 0.75rem;
+}
+
+#tableNav {
+  opacity: 0.75;
 }
