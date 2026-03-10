@@ -1,4 +1,5 @@
 body {
+  margin: 74.5px 0 0 0;
   font-family: "Roboto", sans-serif;
 }
 
@@ -12,25 +13,30 @@ header {
 }
 
 
-/* Sidebar */
+/* Sidebar - default collapsed */
 #sidebar {
-  width: 264px;
+  width: 68px;
   transition: width 0.5s ease;
   overflow: hidden;
   white-space: nowrap;
   height: calc(100vh - 74.5px);
 }
 
-#sidebar.collapsed {
-  width: 68px;
+#sidebar span {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0s 0.3s;
 }
 
-#sidebar.collapsed span {
-  opacity: 0;
-  display: none;
-  transition:
-    opacity 0.2s ease,
-    display 0s 0.3s;
+/* Sidebar - expanded */
+#sidebar.expanded {
+  width: 264px;
+}
+
+#sidebar.expanded span {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease, visibility 0s 0s;
 }
 
 .nav-pills .nav-link.active {
@@ -39,10 +45,3 @@ header {
   border-radius: 0%;
 }
 
-.optionLabel {
-  font-size: 0.75rem;
-}
-
-#tableNav {
-  opacity: 0.75;
-}

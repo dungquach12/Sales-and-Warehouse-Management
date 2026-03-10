@@ -1,11 +1,11 @@
-<!-- Side bar -->
+<!-- Sidebar (md and above) -->
 <div class="d-none d-md-flex flex-column bg-white shadow-sm" id="sidebar">
-{{> sidebarMenu}}
+  {{> sidebarMenu}}
 </div>
 
-<!-- Offcanva -->
+<!-- Offcanvas (below md only) -->
 <div
-  class="offcanvas offcanvas-start"
+  class="offcanvas offcanvas-start d-md-none"
   tabindex="-1"
   id="offcanvasSidebar"
   aria-labelledby="offcanvasSidebarLabel"
@@ -15,13 +15,11 @@
       type="button"
       class="btn-close"
       data-bs-dismiss="offcanvas"
+      data-bs-target="#offcanvasSidebar"
       aria-label="Close"
     ></button>
   </div>
-
   <div class="offcanvas-body p-0">
-    <div>
-      {{> sidebarMenu}}
-    </div>
+    {{> sidebarMenu}}
   </div>
 </div>

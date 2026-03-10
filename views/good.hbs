@@ -1,106 +1,99 @@
-<!-- Main Content -->
-<main class="flex-grow-1 p-1">
-    <div class="bg-white rounded p-4">
-    <!-- Filter option -->
-    <div class="d-flex justify-content-between align-items-center">
-        <!-- Left buttons -->
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-success">
-                <i class="bi bi-plus-circle-fill me-1"></i>Thêm mặt hàng
+<!-- Filter option -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <!-- Left buttons -->
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-success">
+            <i class="bi bi-plus-circle-fill me-1"></i>Thêm mặt hàng
+        </button>
+        <button type="button" class="btn btn-outline-dark">Nhập</button>
+        <button type="button" class="btn btn-outline-dark">Xuất</button>
+    </div>
+
+    <!-- Right filters -->
+    <div class="d-flex flex-wrap gap-4">
+        <div class="dropdown">
+            <span class="optionLabel d-block mb-1">Danh mục</span>
+            <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown">
+                Tất cả
             </button>
-            <button type="button" class="btn btn-outline-dark">Nhập</button>
-            <button type="button" class="btn btn-outline-dark">Xuất</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+            </ul>
         </div>
-
-        <!-- Right filters -->
-        <div class="d-flex gap-4 mt-2">
-            <div class="dropdown">
-                <span class="optionLabel d-block mb-1">Danh mục</span>
-                <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button"
-                    data-bs-toggle="dropdown">
-                    Tất cả
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                </ul>
-            </div>
-            <div class="dropdown">
-                <span class="optionLabel d-block mb-1">Tình trạng tồn kho</span>
-                <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button"
-                    data-bs-toggle="dropdown">
-                    Tất cả
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                </ul>
-            </div>
+        <div class="dropdown">
+            <span class="optionLabel d-block mb-1">Tình trạng tồn kho</span>
+            <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown">
+                Tất cả
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+            </ul>
         </div>
     </div>
+</div>
 
-    <!-- Product table -->
-    <div class="d-flex justify-content-between mt-3">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">
-                        <input class="form-check-input" type="checkbox" value="" id="checkDefault" />
-                    </th>
-                    <th scope="col">Tên mặt hàng</th>
-                    <th scope="col">Danh mục</th>
-                    <th scope="col">Giá</th>
-                    <th scope="col">Chi phí</th>
-                    <th scope="col">Tỉ lệ tồn kho</th>
-                    <th scope="col">Tồn kho</th>
-                </tr>
-            </thead>
-            <tbody class="table-group-divider">
-                <tr>
-                    <th scope="row">
-                        <input class="form-check-input" type="checkbox" value="" id="checkDefault" />
-                    </th>
-                    <td>Cà phê đá</td>
-                    <td>Cà phê</td>
-                    <td>15.000đ</td>
-                    <td>10.000đ</td>
-                    <td>100%</td>
-                    <td>--</td>
-                </tr>
-                <tr>
-                    <th scope="row">
-                        <input class="form-check-input" type="checkbox" value="" id="checkDefault" />
-                    </th>
-                    <td>Cà phê sữa</td>
-                    <td>Cà phê</td>
-                    <td>18.000đ</td>
-                    <td>12.000đ</td>
-                    <td class="text-align-center">100%</td>
-                    <td>--</td>
-                </tr>
-                <tr>
-                    <th scope="row">
-                        <input class="form-check-input" type="checkbox" value="" id="checkDefault" />
-                    </th>
-                    <td>Bạc xỉu</td>
-                    <td>Cà phê</td>
-                    <td>20.000đ</td>
-                    <td>14.000đ</td>
-                    <td>100%</td>
-                    <td>--</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<!-- Product table -->
+<div class="table-responsive mt-3">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">
+                    <input class="form-check-input delete-check" type="checkbox" value="" />
+                </th>
+                <th scope="col">Tên mặt hàng</th>
+                <th scope="col">Danh mục</th>
+                <th scope="col">Giá</th>
+                <th scope="col">Chi phí</th>
+                <th scope="col">Tỉ lệ tồn kho</th>
+                <th scope="col">Tồn kho</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            <tr>
+                <th scope="row">
+                    <input class="form-check-input delete-check" type="checkbox" value="" />
+                </th>
+                <td>Cà phê đá</td>
+                <td>Cà phê</td>
+                <td>15.000đ</td>
+                <td>10.000đ</td>
+                <td>100%</td>
+                <td>--</td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    <input class="form-check-input delete-check" type="checkbox" value="" />
+                </th>
+                <td>Cà phê sữa</td>
+                <td>Cà phê</td>
+                <td>18.000đ</td>
+                <td>12.000đ</td>
+                <td>100%</td>
+                <td>--</td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    <input class="form-check-input delete-check" type="checkbox" value="" />
+                </th>
+                <td>Bạc xỉu</td>
+                <td>Cà phê</td>
+                <td>20.000đ</td>
+                <td>14.000đ</td>
+                <td>100%</td>
+                <td>--</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-    <!-- Table Navigation-->
-    <div class="d-flex align-items-center" id="tableNav">
-        <button type="button" class="btn btn-outline-dark rounded-0 me-1">
-            <i class="bi bi-chevron-left"></i>
-        </button>
-        <button type="button" class="btn btn-outline-dark rounded-0">
-            <i class="bi bi-chevron-right"></i>
-        </button>
-    </div>
-    </div>
-</main>
+<!-- Table Navigation-->
+<div class="d-flex align-items-center" id="tableNav">
+    <button type="button" class="btn btn-outline-dark rounded-0 me-1">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+    <button type="button" class="btn btn-outline-dark rounded-0">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+</div>

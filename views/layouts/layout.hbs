@@ -21,25 +21,27 @@
 
     <!-- Style -->
     <link rel="stylesheet" href="/assets/css/core.css" />
+
+    {{#if pageCSS}}
+    <link rel="stylesheet" href="/assets/css/{{pageCSS}}" />
+    {{/if}}
 </head>
 
 <body class="bg-body-tertiary">
     {{> header}}
 
-    <div class="container-fluid p-0 d-flex" id="contentBody">
+    <div class="d-flex">
         {{> sidebar}}
-        {{{body}}}
+        <!-- Main Content -->
+        <main class="flex-fill bg-white rounded mx-1 mt-1 p-3" style="min-width: 0;">
+            {{{body}}}
+        </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
-    <script>
-      document
-        .getElementById("sidebarToggle")
-        .addEventListener("click", function () {
-          document.getElementById("sidebar").classList.toggle("collapsed");
-        });
+    <script src="/assets/js/sidebarToggle.js">
     </script>
 </body>
 
