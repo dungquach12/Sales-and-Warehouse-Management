@@ -1,0 +1,99 @@
+<div class="bg-white rounded p-4">
+  <h5>Thêm mặt hàng</h5>
+  <form>
+    <div class="d-flex flex-column gap-3">
+
+      <div class="d-flex flex-column">
+        <label class="form-label">Tên mặt hàng</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Nhập tên mặt hàng"
+        />
+      </div>
+
+      <div class="d-flex flex-column">
+        <label class="form-label">Danh mục</label>
+        <div class="input-group">
+          <select class="form-select" id="categorySelect">
+            <option value="">Không có danh mục</option>
+            <option value="1">Cà phê</option>
+          </select>
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#newCategoryModal"
+          >
+            + Mới
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex flex-column">
+        <label class="form-label">Mô tả mặt hàng</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Nhập mô tả mặt hàng"
+        />
+      </div>
+
+      <div class="d-flex gap-2">
+        <div class="d-flex flex-column flex-grow-1">
+          <label class="form-label">Giá</label>
+          <div class="input-group">
+            <input type="text" class="form-control" />
+            <span class="input-group-text">đ</span>
+          </div>
+
+        </div>
+        <div class="d-flex flex-column flex-grow-1">
+          <label class="form-label">Chi phí</label>
+          <div class="input-group">
+            <input type="text" class="form-control" />
+            <span class="input-group-text">đ</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+      <a href="/good" class="btn btn-secondary">Hủy bỏ</a>
+      <button type="submit" class="btn btn-success">Lưu</button>
+    </div>
+  </form>
+</div>
+
+<!-- New Category Modal -->
+<div class="modal fade" id="newCategoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm danh mục mới</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Tên danh mục</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Nhập tên danh mục"
+        />
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >Hủy</button>
+        <button type="button" class="btn btn-success">Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>

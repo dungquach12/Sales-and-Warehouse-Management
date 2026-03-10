@@ -42,6 +42,10 @@ app.get('/good', (req, res) => {
   res.render('good', { pageCSS: 'good.css' });
 });
 
+app.get('/good/add', (req, res) => {
+  res.render('goodAdd');
+});
+
 app.get('/inventory', (req, res) => {
   res.render('inventory');
 });
