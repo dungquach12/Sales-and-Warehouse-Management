@@ -39,11 +39,15 @@ app.get('/report', (req, res) => {
 });
 
 app.get('/good', (req, res) => {
-  res.render('good', { pageCSS: 'good.css' });
+  res.render('good/good', { pageCSS: 'good.css', title: 'Sản phẩm' });
 });
 
-app.get('/good/add', (req, res) => {
-  res.render('goodAdd');
+app.get('/good/add-good', (req, res) => {
+  res.render('good/addGood');
+});
+
+app.get('/good/manage-category', (req, res) => {
+  res.render('good/manageCategory', {pageCSS: 'manageCategory.css'});
 });
 
 app.get('/inventory', (req, res) => {
