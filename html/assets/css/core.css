@@ -1,47 +1,71 @@
 body {
-  margin: 74.5px 0 0 0;
   font-family: "Roboto", sans-serif;
 }
 
-/* Header */
-header {
-  background-color: #ebf4f6;
+/* 
+Header 
+*/
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 55px;
 }
 
 .navbar-brand {
-  color: #09637e !important;
+  margin-left: calc(3 * 0.5rem);
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 
-/* Sidebar - default collapsed */
-#sidebar {
+/* 
+sidebar-container 
+*/
+/* default collapsed */
+#right-menu {
+  padding-top: 55px;
   width: 68px;
   transition: width 0.5s ease;
   overflow: hidden;
   white-space: nowrap;
-  height: calc(100vh - 74.5px);
+  height: 100vh;
 }
 
-#sidebar span {
+#right-menu span {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0s 0.3s;
 }
 
-/* Sidebar - expanded */
-#sidebar.expanded {
+/* expanded */
+#right-menu.expanded {
   width: 264px;
 }
 
-#sidebar.expanded span {
+#right-menu.expanded span {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.2s ease, visibility 0s 0s;
 }
 
 .nav-pills .nav-link.active {
-  color: black;
-  background-color: whitesmoke; 
+  color: blue;
+  /* background-color: whitesmoke;  */
   border-radius: 0%;
 }
 
+/* Animation for sidebar chevron */
+/* Default state */
+a[data-bs-toggle="collapse"] .bi-chevron-down {
+  transition: transform 0.3s ease;
+}
+
+/* Expanded state */
+a[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
+  transform: rotate(180deg);
+}
+
+/* 
+content-container 
+*/

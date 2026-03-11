@@ -1,23 +1,17 @@
-    <header id="navigateBar">
-      <nav class="navbar shadow-sm fixed-top">
-        <div class="container-fluid ps-1">
-          <!-- Collapse sidebar for large and medium screen -->
-          <button class="btn d-none d-md-flex" id="sidebarToggle">
-            <i class="bi bi-list fs-5"></i>
-          </button>
+<nav class="navbar p-0">
+  <div class="container-fluid ps-1">
+    <!-- Brand -->
+    <a class="navbar-brand me-auto" href="#">{{title}}</a>
 
-          <!-- Offcanvas sidebar for small screen -->
-          <button
-            class="btn d-md-none"
-            id="offcanvaToggle"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasSidebar"
-          >
-            <i class="bi bi-list fs-5"></i>
-          </button>
+    <!-- Offcanvas sidebar for small screen -->
+    <button
+      class="btn d-md-none ms-auto"
+      id="offcanvaToggle"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#offcanvasSidebar"
+    >
+      <i class="bi bi-list fs-5"></i>
+    </button>
 
-          <!-- Brand -->
-          <a class="navbar-brand me-auto" href="#">{{title}}</a>
-        </div>
-      </nav>
-    </header>
+  </div>
+</nav>
