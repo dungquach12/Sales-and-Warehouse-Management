@@ -1,6 +1,58 @@
 <!-- Sidebar (md and above) -->
 <div class="d-none d-md-flex flex-column" id="right-menu">
-  {{> menu}}
+  <ul class="nav nav-pills flex-column">
+    <li class="nav-item">
+      <a
+        href="/report"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="Tổng quan"
+        class="nav-link py-2 border-bottom rounded-0 {{#if (eq activeMenu 'report')}}active{{else}}text-black{{/if}}"
+      >
+        <i class="bi bi-graph-up mx-1"></i>
+        <span>Tổng quan</span>
+      </a>  
+    </li>
+
+    <li class="nav-item">
+      <!-- Show when expanded -->
+      <a href="#productMenu"
+        class=
+        "
+        nav-link 
+        py-2 
+        border-bottom 
+        submenu-trigger 
+        {{#if (eq activeParent 'productManage')}}active{{else}}text-black{{/if}}
+        "
+        data-bs-toggle="collapse">
+        <i class="bi bi-bag mx-1"></i>
+        <span class="right-menu-expanded-item">Sản phẩm</span>
+        <i class="bi bi-chevron-down right-menu-expanded-item ms-auto"></i>
+      </a>
+
+      <!-- Sub menu for expanse -->
+      <div class="collapse {{#if (eq activeParent 'product')}}show{{/if}}" id="productMenu">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a href="/products" class="nav-link py-2 border-bottom ps-4 {{#if (eq activeMenu 'product')}}active{{else}}text-black{{/if}}">
+              <i class="bi bi-bag mx-1"></i>
+              <span>Sản phẩm</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="/category"
+              class="nav-link py-2 border-bottom ps-4 {{#if (eq activeMenu 'varation')}}active{{else}}text-black{{/if}}"
+            >
+              <i class="bi bi-tags mx-1"></i>
+              <span>Danh mục</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
   <!-- Collapse menu-bar for large screen -->
   <button class="btn border-0 d-none d-md-flex mt-auto" id="right-menu-toggle">
     <i class="bi bi-list fs-5 mx-auto"></i>

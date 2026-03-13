@@ -11,67 +11,71 @@ app.use(express.static(__dirname + "/html"));
 
 // Configure view templates
 app.engine('hbs', expressHbs.engine({
-    layoutsDir: __dirname + "/views/layouts",
-    partialsDir: __dirname + "/views/partials",
-    extname: "hbs",
-    defaultLayout: "layout",
-    helpers: {
-        // createPagination,
-        formatDate: (date) => {
-            return date.toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-            });
-        },
-    }
+  layoutsDir: __dirname + "/views/layouts",
+  partialsDir: __dirname + "/views/partials",
+  extname: "hbs",
+  defaultLayout: "layout",
+  helpers: {
+    eq: (a, b) => a === b,
+    // createPagination,
+    formatDate: (date) => {
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      });
+    },
+  }
 }));
 
 app.set("view engine", "hbs");
 
 // Routes
 app.get('/', (req, res) => {
-  res.render('report');
+  res.render('wip', {
+    title: 'Tổng quan',
+    activeMenu: 'report'
+  });
 });
 
 app.get('/report', (req, res) => {
-  res.render('report');
+  res.render('wip', {
+    title: 'Tổng quan',
+    activeMenu: 'report'
+  });
 });
 
-app.get('/good', (req, res) => {
-  res.render('good/good', { pageCSS: 'good.css', title: 'Sản phẩm' });
+app.get('/products', (req, res) => {
+  res.render('productManage/product', { 
+    title: 'Sản phẩm',
+    activeMenu: 'products',
+    activeParent: 'productManage' 
+  });
 });
 
-app.get('/good/add-good', (req, res) => {
-  res.render('good/addGood');
+app.get('/orders', (req, res) => {
+  res.render('wip', { 
+    title: 'Đơn hàng',
+    activeMenu: 'orders',
+    activeParent: 'productManage' 
+  });
 });
 
-app.get('/good/manage-category', (req, res) => {
-  res.render('good/manageCategory', {pageCSS: 'manageCategory.css'});
+app.get('/notifications', (req, res) => {
+  res.render('wip', { 
+    title: 'Thông báo',
+    activeMenu: 'notifications',
+    activeParent: 'productManage' 
+  });
 });
 
-app.get('/inventory', (req, res) => {
-  res.render('inventory');
-});
 
-app.get('/employees', (req, res) => {
-  res.render('employees');
-});
-
-app.get('/clients', (req, res) => {
-  res.render('clients');
-});
-
-app.get('/integrations', (req, res) => {
-  res.render('integrations');
-});
-
-app.get('/settings', (req, res) => {
-  res.render('settings');
-});
-
-app.get('/helps', (req, res) => {
-  res.render('helps');
+app.get('/menu', (req, res) => {
+  res.render('wip', { 
+    title: 'Menu',
+    activeMenu: 'menu',
+    activeParent: 'productManage' 
+  });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

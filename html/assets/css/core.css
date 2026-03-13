@@ -13,14 +13,14 @@ nav {
 }
 
 .navbar-brand {
-  margin-left: calc(3 * 0.5rem);
+  margin-left: calc(2 * 0.5rem);
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.125rem;
 }
 
 
 /* 
-sidebar-container 
+sideMenu-container 
 */
 /* default collapsed */
 #right-menu {
@@ -50,9 +50,8 @@ sidebar-container
 }
 
 .nav-pills .nav-link.active {
-  color: blue;
-  /* background-color: whitesmoke;  */
-  border-radius: 0%;
+  background-color: #e8f4f8;
+  color: #09637e;
 }
 
 /* Animation for sidebar chevron */
@@ -64,6 +63,14 @@ a[data-bs-toggle="collapse"] .bi-chevron-down {
 /* Expanded state */
 a[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
   transform: rotate(180deg);
+}
+
+/* 
+bottomMenu-container 
+*/
+.bottomMenu-container span{
+  font-size: 0.65rem;
+  margin-top: 5px;
 }
 
 /* 
