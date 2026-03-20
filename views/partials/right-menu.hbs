@@ -1,5 +1,5 @@
-<!-- Sidebar (md and above) -->
-<div class="d-none d-md-flex flex-column" id="right-menu">
+<!-- Right Menu (md and above) -->
+<div class="d-none d-lg-flex flex-column" id="right-menu">
   <ul class="nav nav-pills flex-column">
     <li class="nav-item">
       <a
@@ -7,50 +7,73 @@
         data-bs-toggle="tooltip"
         data-bs-placement="right"
         title="Tổng quan"
-        class="nav-link py-2 border-bottom rounded-0 {{#if (eq activeMenu 'report')}}active{{else}}text-black{{/if}}"
+        class="nav-link py-2 border-bottom rounded-0 {{#if (eq activeMenu 'report')}}active disabled{{else}}text-black{{/if}}"
       >
-        <i class="bi bi-graph-up mx-1"></i>
+        <i class="right-menu-icon bi bi-graph-up"></i>
         <span>Tổng quan</span>
       </a>  
     </li>
 
     <li class="nav-item">
       <!-- Show when expanded -->
-      <a href="#productMenu"
-        class=
-        "
-        nav-link 
-        py-2 
-        border-bottom 
-        submenu-trigger 
-        {{#if (eq activeParent 'productManage')}}active{{else}}text-black{{/if}}
-        "
-        data-bs-toggle="collapse">
-        <i class="bi bi-bag mx-1"></i>
-        <span class="right-menu-expanded-item">Sản phẩm</span>
-        <i class="bi bi-chevron-down right-menu-expanded-item ms-auto"></i>
-      </a>
+      <button
+        class="d-flex align-items-center w-100 nav-link py-2 border-bottom rounded-0 submenu-trigger {{#if (eq activeParent 'productManage')}}active{{else}}text-black{{/if}}"
+        data-bs-toggle="collapse"
+        data-bs-target="#productMenu">
+          <i class="right-menu-icon bi bi-bag"></i>
+          <span class="right-menu-expanded-item ms-1">Sản phẩm</span>
+          <i class="bi bi-chevron-down right-menu-expanded-item ms-auto"></i>
+      </button>
 
       <!-- Sub menu for expanse -->
       <div class="collapse {{#if (eq activeParent 'product')}}show{{/if}}" id="productMenu">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a href="/products" class="nav-link py-2 border-bottom ps-4 {{#if (eq activeMenu 'product')}}active{{else}}text-black{{/if}}">
+            <a 
+              href="/products" 
+              class="nav-link py-2 border-bottom ps-4 rounded-0 {{#if (eq activeMenu 'products')}}active disabled{{else}}text-black{{/if}}"
+            >
               <i class="bi bi-bag mx-1"></i>
               <span>Sản phẩm</span>
             </a>
           </li>
           <li class="nav-item">
             <a
-              href="/category"
-              class="nav-link py-2 border-bottom ps-4 {{#if (eq activeMenu 'varation')}}active{{else}}text-black{{/if}}"
+              href="/categories"
+              class="nav-link py-2 border-bottom ps-4 rounded-0 {{#if (eq activeMenu 'categories')}}active disabled{{else}}text-black{{/if}}"
             >
-              <i class="bi bi-tags mx-1"></i>
+              <i class="right-menu-icon bi bi-tags"></i>
               <span>Danh mục</span>
             </a>
           </li>
         </ul>
       </div>
+    </li>
+
+    <li class="nav-item">
+      <a
+        href="/sales"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="Tổng quan"
+        class="nav-link align-items-center py-2 border-bottom rounded-0 {{#if (eq activeMenu 'sales')}}active disabled{{else}}text-black{{/if}}"
+      >
+        <i class="right-menu-icon bi bi-receipt"></i>
+        <span>Bán hàng</span>
+      </a>  
+    </li>
+
+    <li class="nav-item">
+      <a
+        href="/dev"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="Tổng quan"
+        class="nav-link align-items-center py-2 border-bottom rounded-0 {{#if (eq activeMenu 'dev')}}active disabled{{else}}text-black{{/if}}"
+      >
+        <i class="right-menu-icon bi bi-braces"></i>
+        <span>Bán hàng</span>
+      </a>  
     </li>
   </ul>
   <!-- Collapse menu-bar for large screen -->

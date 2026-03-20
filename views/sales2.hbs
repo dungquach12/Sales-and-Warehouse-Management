@@ -1,0 +1,225 @@
+<!-- Sale Screen - Bootstrap focused -->
+<div class="row g-3">
+
+  <!-- Left panel -->
+  <div class="col-12 col-md-8">
+    <!-- Drink selection -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="card-title fw-bold"><i class="bi bi-cup-hot me-1"></i>Chọn đồ uống</h6>
+        <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-1" id="drinkGrid">
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="card-title fw-bold"><i class="bi bi-wallet2 me-1"></i>Thanh toán</h6>
+        <div class="btn-group w-100">
+          <button class="btn btn-outline-success active" data-payment="Tiền mặt">
+            <i class="bi bi-cash me-1"></i>Tiền mặt
+          </button>
+          <button class="btn btn-outline-primary" data-payment="Chuyển khoản">
+            <i class="bi bi-phone me-1"></i>Chuyển khoản
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-warning w-100 fw-bold py-3" id="addBtn" disabled>
+      <i class="bi bi-plus-circle me-1"></i>Thêm vào đơn
+    </button>
+
+  </div>
+
+  <!-- Right panel - order summary -->
+  <div class="col-12 col-md-4">
+    <div class="card sticky-top">
+      <div class="card-body">
+        <h6 class="card-title fw-bold"><i class="bi bi-receipt me-1"></i>Đơn hàng</h6>
+
+        <div class="mt-3">
+          <h6 class="card-subtitle fw-light">
+            <i class="bi bi-person me-1"></i>Tên khách
+            <span class="text-muted fw-light small">(không bắt buộc)</span>
+          </h6>
+          <input type="text" class="mt-1 form-control" id="customerName" placeholder="Nhập tên khách hàng..." />
+        </div>
+        
+        <div id="orderList">
+          <div class="text-center text-muted py-4">
+            <i class="bi bi-cup fs-2 d-block mb-2"></i>
+            Chưa có món nào
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2" id="orderTotal">
+          <span class="fw-bold">Tổng cộng</span>
+          <span class="fw-bold fs-5 text-warning" id="totalAmount">0đ</span>
+        </div>
+
+        <button class="btn btn-dark w-100 fw-bold mt-3 py-2" id="submitBtn" disabled>
+          <i class="bi bi-check-circle me-1"></i>Xác nhận đơn
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x mb-3">
+  <div id="toast" class="toast align-items-center text-bg-dark border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body fw-bold" id="toastMsg"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const drinks = [
+    { id: 1, name: 'Cà phê đá', emoji: '☕', price: 15000 },
+    { id: 2, name: 'Cà phê sữa', emoji: '🥛', price: 18000 },
+    { id: 3, name: 'Bạc xỉu', emoji: '🍶', price: 20000 },
+    { id: 4, name: 'Rong biển', emoji: '🧊', price: 10000 },
+    { id: 5, name: 'Bông cúc', emoji: '🥤', price: 10000 },
+    { id: 6, name: 'Nước cam', emoji: '🍊', price: 20000 },
+  ];
+
+  let payment = 'Tiền mặt';
+  let orderItems = [];
+
+  // Render drinks
+  const grid = document.getElementById('drinkGrid');
+  drinks.forEach(d => {
+    const col = document.createElement('div');
+    col.className = 'col';
+    col.innerHTML = `
+      <div class="product-option d-flex flex-column px-2 py-3 border rounded">
+        <!-- Row 1 -->
+        <div class='item-image d-flex align-items-center justify-content-center flex-fill'>
+          <span class='fs-1'>${d.emoji}</span>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="d-flex">
+          
+          <!-- Col 1 - has 2 rows inside -->
+          <div class="d-flex flex-column">
+            <div class="fw-bold small">
+              ${d.name}
+            </div>
+            <div class="text-warning small fw-bold">
+              ${d.price.toLocaleString('vi-VN')}đ
+            </div>
+          </div>
+
+          <!-- Col 2 -->
+            <button 
+              class="drink-btn btn btn-outline-success rounded-circle d-flex align-items-center justify-content-center ms-auto" 
+              data-id="${d.id}" 
+            >
+              <i class="bi bi-plus-lg"></i>
+            </button>
+        </div>
+      </div>
+    `;
+    col.querySelector('.drink-btn').addEventListener('click', () => addDrink(d));
+    grid.appendChild(col);
+  });
+
+  // Payment
+  document.querySelectorAll('[data-payment]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-payment]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      payment = btn.dataset.payment;
+    });
+  });
+
+  // Add to order
+  function addDrink(drink) {
+    const customer = document.getElementById('customerName').value.trim();
+
+    // check if same drink already in order
+    const existing = orderItems.find(item => item.drink.id === drink.id);
+
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      // add new item
+      orderItems.push({
+        id: Date.now(),
+        drink: drink,
+        quantity: 1,
+        customer: customer
+      });
+    }
+
+    renderOrder();
+    showToast(`✓ Đã thêm ${drink.name}`);
+  }
+
+  function renderOrder() {
+    console.log('renderOrder')
+    const list = document.getElementById('orderList');
+    const total = document.getElementById('orderTotal');
+
+    if (orderItems.length === 0) {
+      list.innerHTML = `<div class="text-center text-muted py-4"><i class="bi bi-cup fs-2 d-block mb-2"></i>Chưa có món nào</div>`;
+       document.getElementById('totalAmount').textContent = '0đ';
+      document.getElementById('submitBtn').disabled = true;
+      return;
+    }
+
+    list.innerHTML = orderItems.map(item => `
+      <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+        <div>
+          <div class="fw-bold small">${item.drink.emoji} ${item.drink.name}</div>
+          <div class="text-muted" style="font-size:0.75rem;">
+            x${item.quantity}
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <!-- calculate price from quantity instead of stored price -->
+          <span class="fw-bold text-warning small">${(item.drink.price * item.quantity).toLocaleString('vi-VN')}đ</span>
+          <button class="btn btn-sm btn-link text-danger p-0" onclick="removeItem(${item.id})">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    const grandTotal = orderItems.reduce((sum, i) => sum + (i.drink.price * i.quantity), 0);
+    document.getElementById('totalAmount').textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('submitBtn').disabled = false;
+    total.style.display = 'flex';
+  }
+
+  function removeItem(id) {
+    orderItems = orderItems.filter(i => i.id !== Number(id));
+    renderOrder();
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', () => {
+    if (orderItems.length === 0) return;
+
+    console.log('Order submitted:', orderItems);
+
+    const total = orderItems.reduce((sum, i) => sum + (i.drink.price * i.quantity), 0);
+    showToast(`✓ Đơn ${total.toLocaleString('vi-VN')}đ đã lưu!`);
+    orderItems = [];
+    renderOrder();
+    document.getElementById('addBtn').disabled = true;
+    document.getElementById('customerName').value = '';
+  });
+
+  function showToast(msg) {
+    document.getElementById('toastMsg').textContent = msg;
+    const toast = new bootstrap.Toast(document.getElementById('toast'), { delay: 2000 });
+    toast.show();
+  }  const sidebarToggle = document.getElementById('right-menu-toggle');
+  const drinkGrid = document.getElementById('drinkGrid');
+</script>

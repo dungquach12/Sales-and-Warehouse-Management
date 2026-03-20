@@ -1,5 +1,12 @@
 body {
+  height: 100vh;
+  overflow: hidden; /* prevent body from scrolling */
   font-family: "Roboto", sans-serif;
+}
+
+.content-container {
+  overflow-y: auto; /* only this container scrolls */
+  height: 0; 
 }
 
 /* 
@@ -40,7 +47,7 @@ sideMenu-container
 
 /* expanded */
 #right-menu.expanded {
-  width: 264px;
+  width: 240px;
 }
 
 #right-menu.expanded span {
@@ -65,11 +72,15 @@ a[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
   transform: rotate(180deg);
 }
 
+/* Icon */
+.right-menu-icon {
+  margin: 0 5 0 5;
+}
 /* 
 bottomMenu-container 
 */
 .bottomMenu-container span{
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   margin-top: 5px;
 }
 

@@ -1,0 +1,30 @@
+<div class="">
+  <div class="">
+    <span style="font-size:1.8rem;">${d.emoji}</span>
+    </div>
+    <div class="p-4">
+    <span class="fw-bold small mt-1">${d.name}</span>
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="text-warning small fw-bold">${d.price.toLocaleString('vi-VN')}đ</span>
+        <button class="drink-btn btn btn-success text-white rounded-circle py-1">
+        <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
+    </div>
+</div>
+
+<!-- <button class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center py-3 drink-btn" data-id="${d.id}">
+    <span style="font-size:1.8rem;">${d.emoji}</span>
+    <span class="fw-bold small mt-1">${d.name}</span>
+    <span class="text-warning small fw-bold">${d.price.toLocaleString('vi-VN')}đ</span>
+</button> -->
+
+<script>
+  const drinks = [ { id: 1, name: 'Cà phê đá', emoji: '☕', price: 15000,
+  hasSize: false }, { id: 2, name: 'Cà phê sữa', emoji: '🥛', price: 18000,
+  hasSize: false }, { id: 3, name: 'Bạc xỉu', emoji: '🍶', price: 20000,
+  hasSize: false }, { id: 4, name: 'Rong biển', emoji: '🧊', price: 10000,
+  hasSize: false }, { id: 5, name: 'Bông cúc', emoji: '🥤', price: 10000,
+  hasSize: true }, { id: 6, name: 'Nước cam', emoji: '🍊', price: 20000,
+  hasSize: true }, ];
+</script>

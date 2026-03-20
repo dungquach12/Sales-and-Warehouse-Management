@@ -1,0 +1,12 @@
+.product-option {
+  aspect-ratio: 1;
+  min-block-size: 146px;
+}
+
+.drink-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+

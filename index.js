@@ -53,11 +53,19 @@ app.get('/products', (req, res) => {
   });
 });
 
-app.get('/orders', (req, res) => {
+app.get('/categories', (req, res) => {
   res.render('wip', { 
-    title: 'Đơn hàng',
-    activeMenu: 'orders',
+    title: 'Mẫu mã',
+    activeMenu: 'categories',
     activeParent: 'productManage' 
+  });
+});
+
+app.get('/sales', (req, res) => {
+  res.render('sales2', { 
+    title: 'Bán hàng',
+    activeMenu: 'sales',
+    pageCSS: 'sales.css'
   });
 });
 
@@ -75,6 +83,14 @@ app.get('/menu', (req, res) => {
     title: 'Menu',
     activeMenu: 'menu',
     activeParent: 'productManage' 
+  });
+});
+
+app.get('/dev', (req, res) => {
+  res.render('dev', { 
+    title: 'dev',
+    activeMenu: 'dev',
+    activeParent: 'dev' 
   });
 });
 
