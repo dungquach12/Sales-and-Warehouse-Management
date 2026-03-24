@@ -1,0 +1,28 @@
+.page-wrapper {
+display: flex;
+flex-direction: column;
+height: 100%;
+}
+
+.sticky-section {
+flex-shrink: 0;
+}
+
+.table-wrapper {
+flex: 1;
+overflow-y: auto;
+min-height: 0;
+}
+
+.table-wrapper table {
+margin-bottom: 0;
+}
+
+/* Fix column widths to align header and body */
+.col-check  { width: 44px; }
+.col-name   { width: 30%; }
+.col-cat    { width: 15%; }
+.col-price  { width: 13%; }
+.col-cost   { width: 13%; }
+.col-profit { width: 13%; }
+.col-action { width: 100px; }

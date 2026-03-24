@@ -12,16 +12,6 @@
     <span>Tổng quan</span>
   </a>
 
-  <!-- Order -->
-  <a
-    class="btn d-flex flex-column align-items-center {{#if (eq activeMenu 'sales')}}text-primary{{else}}text-black{{/if}}"
-    role="button"
-    href="/sales"
-  >
-    <i class="bi bi-receipt fs-3"></i>
-    <span>Đơn hàng</span>
-  </a>
-
   <!-- Product -->
   <a
     class="btn d-flex flex-column align-items-center {{#if (eq activeParent 'productManage')}}text-primary{{else}}text-black{{/if}}"
@@ -30,6 +20,16 @@
   >
     <i class="bi bi-bag fs-3"></i>
     <span>Sản phẩm</span>
+  </a>
+
+  <!-- Order -->
+  <a
+    class="btn d-flex flex-column align-items-center {{#if (eq activeMenu 'sales')}}text-primary{{else}}text-black{{/if}}"
+    role="button"
+    href="/sales"
+  >
+    <i class="bi bi-receipt fs-3"></i>
+    <span>Đơn hàng</span>
   </a>
 
   <!-- Notification -->

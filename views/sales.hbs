@@ -4,7 +4,7 @@
   <!-- Left panel -->
   <div class="col-12 col-md-8">
     <!-- Drink selection -->
-    <div class="card mb-3">
+    <div class="card mb-3 border-0">
       <div class="card-body">
         <h6 class="card-title fw-bold"><i class="bi bi-cup-hot me-1"></i>Chọn đồ uống</h6>
         <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-1" id="drinkGrid">
@@ -15,7 +15,7 @@
 
   <!-- Right panel - order summary -->
   <div class="col-12 col-md-4">
-    <div class="card sticky-top">
+    <div class="card sticky-top border-0">
       <div class="card-body">
         <h6 class="card-title fw-bold"><i class="bi bi-receipt me-1"></i>Đơn hàng</h6>
         
@@ -32,14 +32,14 @@
         <div class="card-body px-0 pb-0">
           <h6 class="card-title fw-light"></i>Hình thức</h6>
           <div class="btn-group w-100">
-            <button class="btn btn-outline-secondary active" data-order-method="Tại chổ">
-              Tại chỗ
+            <button class="btn btn-outline-secondary active" data-order-method="Tại chỗ">
+              <span class="small">Tại chỗ</span>
             </button>
             <button class="btn btn-outline-secondary" data-order-method="Mang đi">
-              Mang đi
+              <span class="small">Mang đi</span>
             </button>
             <button class="btn btn-outline-secondary" data-order-method="Giao hàng">
-              Giao hàng
+              <span class="small">Giao hàng</span>
             </button>
           </div>
         </div>
@@ -51,10 +51,11 @@
             <button class="btn btn-outline-success active" data-payment="Tiền mặt">
               <i class="bi bi-cash me-1">
               </i>
-              <span class="fs-6">Tiền mặt</span>
+              <span class="small">Tiền mặt</span>
             </button>
             <button class="btn btn-outline-primary" data-payment="Chuyển khoản">
-              <i class="bi bi-phone me-1"></i>Chuyển khoản
+              <i class="bi bi-phone me-1"></i>
+              <span class="small">Chuyển khoản</span>
             </button>
           </div>
         </div>

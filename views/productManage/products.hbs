@@ -1,0 +1,386 @@
+<!-- Product Management Page -->
+<!-- Add / Edit Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modalTitle">Thêm mặt hàng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId" />
+        <div class="d-flex flex-column gap-3">
+          <div>
+            <label class="form-label fw-semibold">Tên mặt hàng <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="inputName" placeholder="Nhập tên mặt hàng..." />
+          </div>
+          <div>
+            <label class="form-label fw-semibold">Danh mục</label>
+            <input type="text" class="form-control" id="inputCategory" placeholder="Ví dụ: Cà phê, Trà..." />
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label fw-semibold">Giá bán <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="inputPrice" placeholder="0" min="0" />
+                <span class="input-group-text">đ</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Chi phí</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="inputCost" placeholder="0" min="0" />
+                <span class="input-group-text">đ</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="form-label fw-semibold">Emoji</label>
+            <input type="text" class="form-control" id="inputEmoji" placeholder="☕" maxlength="2" />
+            <div class="form-text">Chọn một emoji đại diện cho mặt hàng</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-success fw-bold" id="saveBtn">
+          <i class="bi bi-check-lg me-1"></i>Lưu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <i class="bi bi-trash3 text-danger fs-1 d-block mb-3"></i>
+        <h6 class="fw-bold">Xóa mặt hàng?</h6>
+        <p class="text-muted small mb-0" id="deleteProductName"></p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-danger fw-bold" id="confirmDeleteBtn">
+          <i class="bi bi-trash3 me-1"></i>Xóa
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Page -->
+<div class="page-wrapper">
+
+  <!-- Sticky top section -->
+  <div class="sticky-section d-flex flex-column gap-3 pb-3">
+
+    <!-- Top bar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="d-flex gap-2">
+        <button class="btn btn-success fw-bold" id="addNewBtn" data-bs-toggle="modal" data-bs-target="#productModal">
+          <i class="bi bi-plus-circle-fill me-1"></i>Thêm mặt hàng
+        </button>
+      </div>
+      <div class="input-group" style="max-width:240px;">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search text-muted"></i>
+        </span>
+        <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Tìm kiếm..." />
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-2">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 bg-success bg-opacity-10">
+          <div class="card-body py-3">
+            <div class="text-muted small">Tổng mặt hàng</div>
+            <div class="fw-bold fs-4" id="statTotal">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 bg-warning bg-opacity-10">
+          <div class="card-body py-3">
+            <div class="text-muted small">Danh mục</div>
+            <div class="fw-bold fs-4" id="statCategories">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 bg-info bg-opacity-10">
+          <div class="card-body py-3">
+            <div class="text-muted small">Giá cao nhất</div>
+            <div class="fw-bold fs-4" id="statMaxPrice">0đ</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 bg-danger bg-opacity-10">
+          <div class="card-body py-3">
+            <div class="text-muted small">Giá thấp nhất</div>
+            <div class="fw-bold fs-4" id="statMinPrice">0đ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk bar -->
+    <div class="card border-danger d-none" id="bulkBar">
+      <div class="card-body py-2 d-flex justify-content-between align-items-center">
+        <span class="text-danger fw-bold small"><span id="selectedCount">0</span> mặt hàng được chọn</span>
+        <button class="btn btn-danger btn-sm fw-bold" id="bulkDeleteBtn">
+          <i class="bi bi-trash3 me-1"></i>Xóa đã chọn
+        </button>
+      </div>
+    </div>
+
+    <!-- Static table header -->
+    <div class="card mb-0">
+      <div class="card-body p-0">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-3 col-check">
+                <input type="checkbox" class="form-check-input" id="checkAll" />
+              </th>
+              <th class="col-name">Mặt hàng</th>
+              <th class="col-cat">Danh mục</th>
+              <th class="col-price">Giá bán</th>
+              <th class="col-cost">Chi phí</th>
+              <th class="col-profit">Lợi nhuận</th>
+              <th class="col-action"></th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scrollable table body -->
+  <div class="table-wrapper card rounded-top-0 border-top-0">
+    <div class="card-body p-0">
+      <table class="table table-hover align-middle">
+        <colgroup>
+          <col class="col-check" />
+          <col class="col-name" />
+          <col class="col-cat" />
+          <col class="col-price" />
+          <col class="col-cost" />
+          <col class="col-profit" />
+          <col class="col-action" />
+        </colgroup>
+        <tbody id="productTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x mb-3">
+  <div id="toast" class="toast align-items-center text-bg-dark border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body fw-bold" id="toastMsg"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let products = [
+    { id: 1, name: 'Cà phê đá', category: 'Cà phê', price: 15000, cost: 8000, emoji: '☕' },
+    { id: 2, name: 'Cà phê sữa', category: 'Cà phê', price: 18000, cost: 10000, emoji: '🥛' },
+    { id: 3, name: 'Bạc xỉu', category: 'Cà phê', price: 20000, cost: 12000, emoji: '🍶' },
+    { id: 4, name: 'Trà tắc', category: 'Trà', price: 15000, cost: 6000, emoji: '🍋' },
+    { id: 5, name: 'Nước cam', category: 'Nước ép', price: 20000, cost: 10000, emoji: '🍊' },
+    { id: 6, name: 'Sinh tố xoài', category: 'Sinh tố', price: 25000, cost: 12000, emoji: '🥭' },
+    { id: 7, name: 'Cacao sữa đá', category: 'Cacao', price: 20000, cost: 9000, emoji: '🍫' },
+    { id: 8, name: 'Rong biển', category: 'Trà', price: 10000, cost: 4000, emoji: '🌿' },
+  ];
+
+  let deleteTargetId = null;
+  let nextId = 9;
+
+  // ── Render ──────────────────────────────────────────────
+  function renderTable(data = products) {
+    const tbody = document.getElementById('productTable');
+
+    if (data.length === 0) {
+      tbody.innerHTML = `
+        <tr><td colspan="7" class="text-center text-muted py-5">
+          <i class="bi bi-box-seam fs-2 d-block mb-2"></i>
+          Không tìm thấy mặt hàng nào
+        </td></tr>`;
+      updateStats();
+      return;
+    }
+
+    tbody.innerHTML = data.map(p => {
+      const profit = p.price - (p.cost || 0);
+      const margin = p.cost ? Math.round((profit / p.price) * 100) : null;
+      return `
+        <tr data-id="${p.id}">
+          <td class="ps-3">
+            <input type="checkbox" class="form-check-input row-check" data-id="${p.id}" />
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <span style="font-size:1.3rem;">${p.emoji || '🍵'}</span>
+              <span class="fw-semibold">${p.name}</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">${p.category || '—'}</span>
+          </td>
+          <td class="fw-bold text-warning">${p.price.toLocaleString('vi-VN')}đ</td>
+          <td class="text-muted">${p.cost ? p.cost.toLocaleString('vi-VN') + 'đ' : '—'}</td>
+          <td>
+            ${margin !== null
+              ? `<span class="badge ${margin >= 40 ? 'bg-success' : margin >= 20 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-10 ${margin >= 40 ? 'text-success' : margin >= 20 ? 'text-warning' : 'text-danger'} fw-normal">${margin}%</span>`
+              : '—'}
+          </td>
+          <td>
+            <div class="d-flex gap-1 justify-content-end pe-2">
+              <button class="btn btn-sm btn-outline-secondary" onclick="editProduct(${p.id})">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="promptDelete(${p.id})">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    document.querySelectorAll('.row-check').forEach(cb => {
+      cb.addEventListener('change', updateBulkBar);
+    });
+
+    updateStats();
+  }
+
+  // ── Stats ────────────────────────────────────────────────
+  function updateStats() {
+    const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+    const prices = products.map(p => p.price);
+    document.getElementById('statTotal').textContent = products.length;
+    document.getElementById('statCategories').textContent = categories.length;
+    document.getElementById('statMaxPrice').textContent = prices.length ? Math.max(...prices).toLocaleString('vi-VN') + 'đ' : '0đ';
+    document.getElementById('statMinPrice').textContent = prices.length ? Math.min(...prices).toLocaleString('vi-VN') + 'đ' : '0đ';
+  }
+
+  // ── Add / Edit ───────────────────────────────────────────
+  document.getElementById('addNewBtn').addEventListener('click', () => {
+    document.getElementById('modalTitle').textContent = 'Thêm mặt hàng';
+    document.getElementById('editId').value = '';
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputCategory').value = '';
+    document.getElementById('inputPrice').value = '';
+    document.getElementById('inputCost').value = '';
+    document.getElementById('inputEmoji').value = '';
+  });
+
+  function editProduct(id) {
+    const p = products.find(p => p.id === id);
+    if (!p) return;
+    document.getElementById('modalTitle').textContent = 'Chỉnh sửa mặt hàng';
+    document.getElementById('editId').value = p.id;
+    document.getElementById('inputName').value = p.name;
+    document.getElementById('inputCategory').value = p.category || '';
+    document.getElementById('inputPrice').value = p.price;
+    document.getElementById('inputCost').value = p.cost || '';
+    document.getElementById('inputEmoji').value = p.emoji || '';
+    new bootstrap.Modal(document.getElementById('productModal')).show();
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const name = document.getElementById('inputName').value.trim();
+    const price = parseInt(document.getElementById('inputPrice').value);
+
+    if (!name) { showToast('⚠️ Vui lòng nhập tên mặt hàng'); return; }
+    if (!price || price <= 0) { showToast('⚠️ Vui lòng nhập giá hợp lệ'); return; }
+
+    const editId = document.getElementById('editId').value;
+    const data = {
+      name,
+      category: document.getElementById('inputCategory').value.trim(),
+      price,
+      cost: parseInt(document.getElementById('inputCost').value) || 0,
+      emoji: document.getElementById('inputEmoji').value.trim() || '🍵',
+    };
+
+    if (editId) {
+      const idx = products.findIndex(p => p.id === Number(editId));
+      products[idx] = { ...products[idx], ...data };
+      showToast('✓ Đã cập nhật mặt hàng');
+    } else {
+      products.push({ id: nextId++, ...data });
+      showToast('✓ Đã thêm mặt hàng');
+    }
+
+    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+    renderTable();
+    filterTable();
+  });
+
+  // ── Delete ───────────────────────────────────────────────
+  function promptDelete(id) {
+    deleteTargetId = id;
+    const p = products.find(p => p.id === id);
+    document.getElementById('deleteProductName').textContent = p ? p.name : '';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+  }
+
+  document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+    products = products.filter(p => p.id !== deleteTargetId);
+    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+    renderTable();
+    showToast('✓ Đã xóa mặt hàng');
+  });
+
+  // ── Bulk delete ──────────────────────────────────────────
+  document.getElementById('checkAll').addEventListener('change', function () {
+    document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+    updateBulkBar();
+  });
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    document.getElementById('selectedCount').textContent = checked.length;
+    document.getElementById('bulkBar').classList.toggle('d-none', checked.length === 0);
+  }
+
+  document.getElementById('bulkDeleteBtn').addEventListener('click', () => {
+    const ids = [...document.querySelectorAll('.row-check:checked')].map(cb => Number(cb.dataset.id));
+    products = products.filter(p => !ids.includes(p.id));
+    document.getElementById('checkAll').checked = false;
+    document.getElementById('bulkBar').classList.add('d-none');
+    renderTable();
+    showToast(`✓ Đã xóa ${ids.length} mặt hàng`);
+  });
+
+  // ── Search ───────────────────────────────────────────────
+  function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = q ? products.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.category && p.category.toLowerCase().includes(q))
+    ) : products;
+    renderTable(filtered);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', filterTable);
+
+  // ── Toast ────────────────────────────────────────────────
+  function showToast(msg, time = 2000) {
+    document.getElementById('toastMsg').textContent = msg;
+    new bootstrap.Toast(document.getElementById('toast'), { delay: time }).show();
+  }
+
+  // ── Init ─────────────────────────────────────────────────
+  renderTable();
+</script>

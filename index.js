@@ -46,10 +46,11 @@ app.get('/report', (req, res) => {
 });
 
 app.get('/products', (req, res) => {
-  res.render('productManage/product', { 
+  res.render('productManage/products', { 
     title: 'Sản phẩm',
     activeMenu: 'products',
-    activeParent: 'productManage' 
+    activeParent: 'productManage',
+    pageCSS: 'products.css'
   });
 });
 
@@ -82,7 +83,7 @@ app.get('/menu', (req, res) => {
   res.render('wip', { 
     title: 'Menu',
     activeMenu: 'menu',
-    activeParent: 'productManage' 
+    activeParent: 'productManage',
   });
 });
 
