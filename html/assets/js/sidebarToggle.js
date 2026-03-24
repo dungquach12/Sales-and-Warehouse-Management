@@ -9,14 +9,6 @@ rightMenuToggle.addEventListener('click', function () {
     const bsCollapse = bootstrap.Collapse.getInstance(el);
     if (bsCollapse) bsCollapse.hide();
   });
-
-  if (drinkGrid) {
-    if (rightMenu.classList.contains('expanded')) {
-      drinkGrid.className = 'row row-cols-2 row-cols-md-2 row-cols-lg-3 g-1';
-    } else {
-      drinkGrid.className = 'row row-cols-2 row-cols-md-3 row-cols-lg-4 g-1';
-    }
-  }
 });
 
 // expand sidebar when submenu clicked while collapsed

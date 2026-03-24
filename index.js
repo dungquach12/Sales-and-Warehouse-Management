@@ -62,7 +62,7 @@ app.get('/categories', (req, res) => {
 });
 
 app.get('/sales', (req, res) => {
-  res.render('sales2', { 
+  res.render('sales', { 
     title: 'Bán hàng',
     activeMenu: 'sales',
     pageCSS: 'sales.css'

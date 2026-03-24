@@ -1,12 +1,18 @@
 body {
   height: 100vh;
-  overflow: hidden; /* prevent body from scrolling */
+  overflow: hidden;
   font-family: "Roboto", sans-serif;
 }
 
 .content-container {
-  overflow-y: auto; /* only this container scrolls */
-  height: 0; 
+  overflow-y: auto;
+  height: 0;
+}
+
+@media (max-width: 1400px) {
+  .content-container {
+    padding-bottom: calc(92.5px + 20px) !important;
+  }
 }
 
 /* 
@@ -47,7 +53,7 @@ sideMenu-container
 
 /* expanded */
 #right-menu.expanded {
-  width: 240px;
+  width: 220px;
 }
 
 #right-menu.expanded span {
