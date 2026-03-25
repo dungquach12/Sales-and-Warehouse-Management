@@ -1,0 +1,43 @@
+<main class="d-flex align-items-center justify-content-center py-4 px-3 ">
+  <div class="w-100" style="max-width: 420px;">
+    <form id="username-login-form" method="post" action="/login" class="bg-white rounded-3 p-4 shadow-sm">
+
+      <!-- Logo + title -->
+      <div class="text-center mb-4">
+        <i class="bi bi-shop" style="font-size: 3.5rem;"></i>
+        <h1 class="h4 fw-bold mt-2">Sign Up to EasyManage</h1>
+        {{#if message}}
+          <p class="text-danger small mt-2 mb-0">{{message}}</p>
+        {{/if}}
+      </div>
+
+      <!-- Fields -->
+        <div class="form-floating mt-3">
+            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com"
+                required />
+            <label for="floatingInput">Email address</label>
+        </div>
+        <div class="form-floating mt-3">
+            <input type="username" name="username" class="form-control" id="floatingTextarea" placeholder="Example"
+                required />
+            <label for="floatingInput">Username</label>
+        </div>
+        <div class="form-floating mt-3">
+            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password"
+                pattern=".{8,}" title="Eight or more characters" required />
+            <label for="floatingPassword">Password</label>
+        </div>
+
+        <button class="mt-4 w-100 btn btn-lg btn-dark" type="submit">
+            Confirm
+        </button>
+
+      <hr class="my-4" />
+
+      <div class="row mt-4">
+        <a href="/login" class="col text-start">Log in</a>
+        </div>
+
+    </form>
+  </div>
+</main>

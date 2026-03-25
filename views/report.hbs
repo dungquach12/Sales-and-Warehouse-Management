@@ -1,0 +1,319 @@
+<!-- Report Page -->
+ <main>
+  <!-- Period selector -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h6 class="fw-bold mb-0">Tổng quan</h6>
+    <div class="btn-group">
+      <button class="btn btn-sm btn-outline-secondary period-btn active" data-period="today">Hôm nay</button>
+      <button class="btn btn-sm btn-outline-secondary period-btn" data-period="week">7 ngày</button>
+      <button class="btn btn-sm btn-outline-secondary period-btn" data-period="month">30 ngày</button>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card stat-card bg-success bg-opacity-10 p-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="text-muted small">Doanh thu</div>
+            <div class="fw-bold fs-5 mt-1" id="statRevenue">0đ</div>
+            <div class="small mt-1" id="statRevenueChange"></div>
+          </div>
+          <div class="stat-icon bg-success bg-opacity-25">💰</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card bg-primary bg-opacity-10 p-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="text-muted small">Đơn hàng</div>
+            <div class="fw-bold fs-5 mt-1" id="statOrders">0</div>
+            <div class="small mt-1" id="statOrdersChange"></div>
+          </div>
+          <div class="stat-icon bg-primary bg-opacity-25">🧾</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card bg-warning bg-opacity-10 p-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="text-muted small">Trung bình/đơn</div>
+            <div class="fw-bold fs-5 mt-1" id="statAvg">0đ</div>
+            <div class="small mt-1" id="statAvgChange"></div>
+          </div>
+          <div class="stat-icon bg-warning bg-opacity-25">📊</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card bg-danger bg-opacity-10 p-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="text-muted small">Lợi nhuận</div>
+            <div class="fw-bold fs-5 mt-1" id="statProfit">0đ</div>
+            <div class="small mt-1" id="statProfitChange"></div>
+          </div>
+          <div class="stat-icon bg-danger bg-opacity-25">📈</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="row g-3 mb-3">
+
+    <!-- Revenue chart -->
+    <div class="col-12 col-md-8">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">Doanh thu theo giờ</h6>
+            <span class="text-muted small" id="chartSubtitle">Hôm nay</span>
+          </div>
+          <div class="chart-bar-wrap" id="revenueChart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment split -->
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">Hình thức thanh toán</h6>
+          <div class="d-flex flex-column gap-3" id="paymentSplit">
+            <div>
+              <div class="d-flex justify-content-between small mb-1">
+                <span>💵 Tiền mặt</span>
+                <span class="fw-bold" id="cashAmount">0đ</span>
+              </div>
+              <div class="progress" style="height:8px;">
+                <div class="progress-bar bg-success" id="cashBar" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between small mb-1">
+                <span>📱 Chuyển khoản</span>
+                <span class="fw-bold" id="transferAmount">0đ</span>
+              </div>
+              <div class="progress" style="height:8px;">
+                <div class="progress-bar bg-primary" id="transferBar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <hr />
+
+          <!-- Order method split -->
+          <h6 class="fw-bold mb-3">Hình thức đặt hàng</h6>
+          <div class="d-flex flex-column gap-2" id="methodSplit">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small">🪑 Tại chỗ</span>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal" id="dineInCount">0 đơn</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small">🛍 Mang đi</span>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal" id="takeawayCount">0 đơn</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small">🛵 Giao hàng</span>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal" id="deliveryCount">0 đơn</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom row -->
+  <div class="row g-3">
+
+    <!-- Top selling -->
+    <div class="col-12 col-md-5">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">🏆 Bán chạy nhất</h6>
+          <div class="d-flex flex-column gap-3" id="topProducts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent orders -->
+    <div class="col-12 col-md-7">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">🧾 Đơn hàng gần đây</h6>
+          <div class="table-responsive">
+            <table class="table table-borderless table-sm align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="small">Thời gian</th>
+                  <th class="small">Khách</th>
+                  <th class="small">Món</th>
+                  <th class="small">Tổng</th>
+                  <th class="small">TT</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrders"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+<script>
+  // Mock data
+  const mockOrders = [
+    { time: '07:15', customer: 'Anh Tú', items: [{ name: 'Cà phê đá', qty: 2, price: 15000 }], payment: 'Tiền mặt', method: 'Tại chỗ' },
+    { time: '07:42', customer: 'Chị Mai', items: [{ name: 'Cà phê sữa', qty: 1, price: 18000 }, { name: 'Bạc xỉu', qty: 1, price: 20000 }], payment: 'Chuyển khoản', method: 'Mang đi' },
+    { time: '08:10', customer: '', items: [{ name: 'Trà tắc', qty: 3, price: 15000 }], payment: 'Tiền mặt', method: 'Tại chỗ' },
+    { time: '08:55', customer: 'Bác Hùng', items: [{ name: 'Cà phê đá', qty: 1, price: 15000 }], payment: 'Tiền mặt', method: 'Tại chỗ' },
+    { time: '09:20', customer: 'Chị Lan', items: [{ name: 'Nước cam', qty: 2, price: 20000 }, { name: 'Sinh tố xoài', qty: 1, price: 25000 }], payment: 'Chuyển khoản', method: 'Giao hàng' },
+    { time: '10:05', customer: '', items: [{ name: 'Cà phê sữa', qty: 2, price: 18000 }], payment: 'Tiền mặt', method: 'Mang đi' },
+    { time: '10:33', customer: 'Anh Nam', items: [{ name: 'Cacao sữa đá', qty: 1, price: 20000 }], payment: 'Tiền mặt', method: 'Tại chỗ' },
+    { time: '11:00', customer: 'Chị Hoa', items: [{ name: 'Bạc xỉu', qty: 2, price: 20000 }, { name: 'Trà tắc', qty: 1, price: 15000 }], payment: 'Chuyển khoản', method: 'Tại chỗ' },
+    { time: '11:45', customer: '', items: [{ name: 'Cà phê đá', qty: 3, price: 15000 }], payment: 'Tiền mặt', method: 'Tại chỗ' },
+    { time: '12:20', customer: 'Anh Khoa', items: [{ name: 'Nước cam', qty: 1, price: 20000 }, { name: 'Cà phê sữa', qty: 1, price: 18000 }], payment: 'Chuyển khoản', method: 'Mang đi' },
+  ];
+
+  function orderTotal(o) {
+    return o.items.reduce((s, i) => s + i.price * i.qty, 0);
+  }
+
+  function orderProfit(o) {
+    return orderTotal(o) * 0.4;
+  }
+
+  // Render all
+  function renderAll(period) {
+    const orders = mockOrders; 
+
+    const revenue = orders.reduce((s, o) => s + orderTotal(o), 0);
+    const profit = orders.reduce((s, o) => s + orderProfit(o), 0);
+    const avg = orders.length ? Math.round(revenue / orders.length) : 0;
+
+    // Stats
+    document.getElementById('statRevenue').textContent = revenue.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('statOrders').textContent = orders.length;
+    document.getElementById('statAvg').textContent = avg.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('statProfit').textContent = profit.toLocaleString('vi-VN') + 'đ';
+
+    // Change indicators (mock)
+    const changes = { revenue: '+12%', orders: '+3', avg: '+5%', profit: '+8%' };
+    document.getElementById('statRevenueChange').innerHTML = `<span class="text-success">${changes.revenue} so hôm qua</span>`;
+    document.getElementById('statOrdersChange').innerHTML = `<span class="text-success">${changes.orders} so hôm qua</span>`;
+    document.getElementById('statAvgChange').innerHTML = `<span class="text-success">${changes.avg} so hôm qua</span>`;
+    document.getElementById('statProfitChange').innerHTML = `<span class="text-success">${changes.profit} so hôm qua</span>`;
+
+    renderChart(orders, period);
+    renderPaymentSplit(orders);
+    renderTopProducts(orders);
+    renderRecentOrders(orders);
+  }
+
+  // Revenue chart
+  function renderChart(orders, period) {
+    const chart = document.getElementById('revenueChart');
+
+    // Group by hour
+    const hours = {};
+    for (let h = 6; h <= 22; h++) hours[h] = 0;
+    orders.forEach(o => {
+      const h = parseInt(o.time.split(':')[0]);
+      hours[h] = (hours[h] || 0) + orderTotal(o);
+    });
+
+    const vals = Object.values(hours);
+    const max = Math.max(...vals) || 1;
+    const colors = ['#198754', '#0d6efd', '#ffc107', '#dc3545', '#0dcaf0', '#6f42c1'];
+
+    chart.innerHTML = Object.entries(hours).map(([h, v], i) => {
+      const pct = Math.round((v / max) * 100);
+      const color = colors[i % colors.length];
+      return `
+        <div class="chart-bar-col">
+          <div class="chart-bar-val">${v > 0 ? (v / 1000).toFixed(0) + 'k' : ''}</div>
+          <div class="chart-bar" style="height:${Math.max(pct, 2)}%; background:${color}; opacity:${v > 0 ? 1 : 0.15};"
+            title="${h}:00 — ${v.toLocaleString('vi-VN')}đ"></div>
+          <div class="chart-bar-label">${h}h</div>
+        </div>`;
+    }).join('');
+  }
+
+  // Payment split 
+  function renderPaymentSplit(orders) {
+    const cash = orders.filter(o => o.payment === 'Tiền mặt').reduce((s, o) => s + orderTotal(o), 0);
+    const transfer = orders.filter(o => o.payment === 'Chuyển khoản').reduce((s, o) => s + orderTotal(o), 0);
+    const total = cash + transfer || 1;
+
+    document.getElementById('cashAmount').textContent = cash.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('transferAmount').textContent = transfer.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('cashBar').style.width = Math.round((cash / total) * 100) + '%';
+    document.getElementById('transferBar').style.width = Math.round((transfer / total) * 100) + '%';
+
+    document.getElementById('dineInCount').textContent = orders.filter(o => o.method === 'Tại chỗ').length + ' đơn';
+    document.getElementById('takeawayCount').textContent = orders.filter(o => o.method === 'Mang đi').length + ' đơn';
+    document.getElementById('deliveryCount').textContent = orders.filter(o => o.method === 'Giao hàng').length + ' đơn';
+  }
+
+  // Top products
+  function renderTopProducts(orders) {
+    const counts = {};
+    orders.forEach(o => o.items.forEach(i => {
+      counts[i.name] = (counts[i.name] || 0) + i.qty;
+    }));
+
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const max = sorted[0]?.[1] || 1;
+    const colors = ['#ffc107', '#198754', '#0d6efd', '#dc3545', '#6f42c1'];
+
+    document.getElementById('topProducts').innerHTML = sorted.map(([name, qty], i) => `
+      <div>
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="small fw-semibold">${i + 1}. ${name}</span>
+          <span class="small text-muted">${qty} ly</span>
+        </div>
+        <div class="top-item-bar" style="width:${Math.round((qty / max) * 100)}%; background:${colors[i]};"></div>
+      </div>
+    `).join('');
+  }
+
+  // Recent orders
+  function renderRecentOrders(orders) {
+    const recent = [...orders].reverse().slice(0, 8);
+    document.getElementById('recentOrders').innerHTML = recent.map(o => {
+      const total = orderTotal(o);
+      const itemSummary = o.items.map(i => `${i.name}${i.qty > 1 ? ' x' + i.qty : ''}`).join(', ');
+      const payBadge = o.payment === 'Tiền mặt'
+        ? 'bg-success bg-opacity-10 text-success'
+        : 'bg-primary bg-opacity-10 text-primary';
+      return `
+        <tr>
+          <td class="text-muted small">${o.time}</td>
+          <td class="small">${o.customer || '<span class="text-muted">—</span>'}</td>
+          <td class="small text-muted" style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${itemSummary}</td>
+          <td class="small fw-bold text-warning">${total.toLocaleString('vi-VN')}đ</td>
+          <td><span class="badge order-badge ${payBadge}">${o.payment === 'Tiền mặt' ? 'TM' : 'CK'}</span></td>
+        </tr>`;
+    }).join('');
+  }
+
+  // Period toggle 
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const labels = { today: 'Hôm nay', week: '7 ngày qua', month: '30 ngày qua' };
+      document.getElementById('chartSubtitle').textContent = labels[btn.dataset.period];
+      renderAll(btn.dataset.period);
+    });
+  });
+
+  // Init
+  renderAll('today');
+</script>

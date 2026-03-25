@@ -1,4 +1,3 @@
-const http = require('http');
 const path = require("path");
 const express = require("express");
 const expressHbs = require("express-handlebars");
@@ -31,17 +30,35 @@ app.engine('hbs', expressHbs.engine({
 app.set("view engine", "hbs");
 
 // Routes
+
+// ------- Authenticate ------------
+app.get('/login', (req, res) => {
+  res.render('authenticate/auth-login', {
+    title: 'Đăng nhập',
+    layout: 'auth-layout'
+  });
+});
+app.get('/register', (req, res) => {
+  res.render('authenticate/auth-register', {
+    title: 'Đăng ký',
+    layout: 'auth-layout'
+  });
+});
+// ---------------------------------
+
 app.get('/', (req, res) => {
-  res.render('wip', {
+  res.render('report', {
     title: 'Tổng quan',
-    activeMenu: 'report'
+    activeMenu: 'report',
+    pageCSS: 'report.css'
   });
 });
 
 app.get('/report', (req, res) => {
-  res.render('wip', {
+  res.render('report', {
     title: 'Tổng quan',
-    activeMenu: 'report'
+    activeMenu: 'report',
+    pageCSS: 'report.css'
   });
 });
 

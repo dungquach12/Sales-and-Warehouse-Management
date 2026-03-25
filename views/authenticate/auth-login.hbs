@@ -1,0 +1,38 @@
+<main class="d-flex align-items-center justify-content-center py-4 px-3 ">
+  <div class="w-100" style="max-width: 420px;">
+    <form id="username-login-form" method="post" action="/login" class="bg-white rounded-3 p-4 shadow-sm">
+
+      <!-- Logo + title -->
+      <div class="text-center mb-4">
+        <i class="bi bi-shop" style="font-size: 3.5rem;"></i>
+        <h1 class="h4 fw-bold mt-2">Log in to EasyManage</h1>
+        {{#if message}}
+          <p class="text-danger small mt-2 mb-0">{{message}}</p>
+        {{/if}}
+      </div>
+
+      <!-- Fields -->
+      <div class="form-floating mb-3">
+        <input type="text" name="usernameOrEmail" class="form-control" id="floatingInput"
+          placeholder="Username or email" required />
+        <label for="floatingInput">Username or email</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input type="password" name="password" class="form-control" id="floatingPassword"
+          placeholder="Password" required />
+        <label for="floatingPassword">Password</label>
+      </div>
+
+      <button class="w-100 btn btn-lg btn-dark" type="submit">Log in</button>
+
+      <hr class="my-4" />
+
+      <div class="d-flex justify-content-between">
+        <a href="/register" class="small">Sign up</a>
+        <a href="/reset-password" class="small">Forgot password?</a>
+      </div>
+
+    </form>
+  </div>
+</main>
