@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     /**
@@ -11,22 +9,47 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Order.associate = (models) => {
-        Order.belongsTo(models.User, { foreignKey: 'user_id' });
-        Order.hasMany(models.OrderItem, { foreignKey: 'order_id' });
-      };
+      Order.belongsTo(models.User, { foreignKey: "user_id" });
+      Order.belongsTo(models.Customer, { foreignKey: 'customer_id' });
+      Order.hasMany(models.OrderItem, { foreignKey: "order_id" });
     }
   }
-  Order.init({
-    user_id: DataTypes.INTEGER,
-    customer_name: DataTypes.STRING,
-    payment_method: DataTypes.STRING,
-    order_method: DataTypes.STRING,
-    total_price: DataTypes.DECIMAL,
-    status: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Order',
-  });
+  Order.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false,
+      },
+      user_id: {
+        type: DataTypes.UUID,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+      },
+      customer_id: {
+        type: DataTypes.UUID,
+        references: {
+          model: "Customers",
+          key: "id",
+        },
+      },
+      customer_name: DataTypes.STRING,
+      payment_method: DataTypes.STRING,
+      order_method: DataTypes.STRING,
+      total_price: DataTypes.DECIMAL,
+      status: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Order",
+      underscored: true,
+      timestamps: true,
+      updatedAt: false, // orders should never be updated
+    },
+  );
+
   return Order;
 };

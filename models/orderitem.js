@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class OrderItem extends Model {
     /**
@@ -11,20 +9,42 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      OrderItem.associate = (models) => {
-        OrderItem.belongsTo(models.Order, { foreignKey: 'order_id' });
-        OrderItem.belongsTo(models.Product, { foreignKey: 'product_id' });
-      };
+      OrderItem.belongsTo(models.Order, { foreignKey: "order_id" });
+      OrderItem.belongsTo(models.Product, { foreignKey: "product_id" });
     }
   }
-  OrderItem.init({
-    order_id: DataTypes.INTEGER,
-    product_id: DataTypes.INTEGER,
-    quantity: DataTypes.INTEGER,
-    unit_price: DataTypes.DECIMAL
-  }, {
-    sequelize,
-    modelName: 'OrderItem',
-  });
+  OrderItem.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+        allowNull: false,
+      },
+      order_id: {
+        type: DataTypes.UUID,
+        references: {
+          model: "Orders",
+          key: "id",
+        },
+      },
+      product_id: {
+        type: DataTypes.UUID,
+        references: {
+          model: "Products",
+          key: "id",
+        },
+      },
+      quantity: DataTypes.INTEGER,
+      unit_price: DataTypes.DECIMAL,
+    },
+    {
+      sequelize,
+      modelName: "OrderItem",
+      underscored: true,
+      timestamps: false, // order items are immutable
+    },
+  );
+
   return OrderItem;
 };
