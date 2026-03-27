@@ -5,6 +5,11 @@ const app = express();
 
 const PORT = 3000;
 
+const session = require("express-session");
+
+const { User } = require("./models");   // Import the User model
+const { where } = require("sequelize");
+
 // Configure static web folders
 app.use(express.static(__dirname + "/html"));
 
@@ -29,30 +34,26 @@ app.engine('hbs', expressHbs.engine({
 
 app.set("view engine", "hbs");
 
+// Middleware to parse request bodies
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+
+// Session config
+app.use(session({
+    secret: process.env.SESSION_SECRET || "my secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 20 * 60 * 1000, // 20 minutes
+        httpOnly: true,
+        secret: false, // True if use https
+    }
+}))
+
 // Routes
-
 // ------- Authenticate ------------
-app.get('/login', (req, res) => {
-  res.render('authenticate/auth-login', {
-    title: 'Đăng nhập',
-    layout: 'auth-layout'
-  });
-});
-app.get('/register', (req, res) => {
-  res.render('authenticate/auth-register', {
-    title: 'Đăng ký',
-    layout: 'auth-layout'
-  });
-});
+app.use("/", require("./routes/authRouter.js"));
 // ---------------------------------
-
-app.get('/', (req, res) => {
-  res.render('report', {
-    title: 'Tổng quan',
-    activeMenu: 'report',
-    pageCSS: 'report.css'
-  });
-});
 
 app.get('/report', (req, res) => {
   res.render('report', {
@@ -101,14 +102,6 @@ app.get('/menu', (req, res) => {
     title: 'Menu',
     activeMenu: 'menu',
     activeParent: 'productManage',
-  });
-});
-
-app.get('/dev', (req, res) => {
-  res.render('dev', { 
-    title: 'dev',
-    activeMenu: 'dev',
-    activeParent: 'dev' 
   });
 });
 
