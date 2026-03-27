@@ -1,7 +1,7 @@
 {
     "development": {
-        "username": "dungquach12",
-        "password": "Amvtungbo12",
+        "username": "easy_manage_user",
+        "password": "123456",
         "database": "EasyManage",
         "host": "127.0.0.1",
         "dialect": "postgres"
