@@ -59,14 +59,7 @@ app.use("/", require("./routes/authRouter"));
 // ---------------------------------
 app.use("/report", require("./routes/reportRouter"));
 
-app.get('/products', (req, res) => {
-  res.render('productManage/products', { 
-    title: 'Sản phẩm',
-    activeMenu: 'products',
-    activeParent: 'productManage',
-    pageCSS: 'products.css'
-  });
-});
+app.use("/products", require("./routes/productRouter"));
 
 app.get('/categories', (req, res) => {
   res.render('wip', { 
