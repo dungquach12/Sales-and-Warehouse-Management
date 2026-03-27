@@ -41,6 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "OrderItem",
+      tableName: "OrderItems",
       underscored: true,
       timestamps: false, // order items are immutable
     },

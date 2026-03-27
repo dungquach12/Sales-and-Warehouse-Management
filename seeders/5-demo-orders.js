@@ -12,7 +12,7 @@ module.exports = {
         order_method: "Tại chỗ",
         total_price: 30000,
         status: "completed",
-        createdAt: new Date(),
+        created_at: new Date(),
       },
       {
         id: '225203bf-ab59-4650-9b82-bc3d18e44d47',
@@ -23,7 +23,7 @@ module.exports = {
         order_method: "Mang đi",
         total_price: 38000,
         status: "completed",
-        createdAt: new Date(),
+        created_at: new Date(),
       },
       {
         id: 'cb5b8324-0ca4-4f12-98ff-9cfd8be3ede2',
@@ -34,7 +34,7 @@ module.exports = {
         order_method: "Tại chỗ",
         total_price: 45000,
         status: "completed",
-        createdAt: new Date(),
+        created_at: new Date(),
       },
       {
         id: 'a7e85af8-99d0-42fb-b8e8-49623086f6a3',
@@ -45,7 +45,7 @@ module.exports = {
         order_method: "Tại chỗ",
         total_price: 15000,
         status: "completed",
-        createdAt: new Date(),
+        created_at: new Date(),
       },
       {
         id: 'd7756c1f-2adb-4eee-a13e-b654c452d60d',
@@ -56,7 +56,7 @@ module.exports = {
         order_method: "Giao hàng",
         total_price: 65000,
         status: "completed",
-        createdAt: new Date(),
+        created_at: new Date(),
       },
     ]);
   },

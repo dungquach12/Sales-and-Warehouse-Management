@@ -11,8 +11,8 @@ module.exports = {
         email: 'admin@easymanage.com',
         password_hash: await bcrypt.hash('123456', 10),
         role: 'admin',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
       },
       {
         id: '656edf75-f3aa-47f4-a688-f97e0558d589',
@@ -21,8 +21,8 @@ module.exports = {
         email: 'staff1@easymanage.com',
         password_hash: await bcrypt.hash('123456', 10),
         role: 'staff',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
       }
     ]);
   },

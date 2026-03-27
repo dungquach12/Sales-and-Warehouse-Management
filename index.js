@@ -7,9 +7,6 @@ const PORT = 3000;
 
 const session = require("express-session");
 
-const { User } = require("./models");   // Import the User model
-const { where } = require("sequelize");
-
 // Configure static web folders
 app.use(express.static(__dirname + "/html"));
 
@@ -50,18 +47,17 @@ app.use(session({
     }
 }))
 
+// Make session available to templates
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+
 // Routes
 // ------- Authenticate ------------
-app.use("/", require("./routes/authRouter.js"));
+app.use("/", require("./routes/authRouter"));
 // ---------------------------------
-
-app.get('/report', (req, res) => {
-  res.render('report', {
-    title: 'Tổng quan',
-    activeMenu: 'report',
-    pageCSS: 'report.css'
-  });
-});
+app.use("/report", require("./routes/reportRouter"));
 
 app.get('/products', (req, res) => {
   res.render('productManage/products', { 

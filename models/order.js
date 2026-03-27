@@ -45,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Order",
+      tableName: "Orders",
       underscored: true,
       timestamps: true,
       updatedAt: false, // orders should never be updated
