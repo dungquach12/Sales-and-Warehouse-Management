@@ -1,14 +1,12 @@
-<main class="d-flex align-items-center justify-content-center py-4 px-3 ">
+<main class="d-flex align-items-center justify-content-center py-4 px-3">
   <div class="w-100" style="max-width: 420px;">
-    <form id="username-login-form" method="post" action="/login" class="bg-white rounded-3 p-4 shadow-sm">
+    <form id="loginForm" class="bg-white rounded-3 p-4 shadow-sm">
 
       <!-- Logo + title -->
       <div class="text-center mb-4">
-        <i class="bi bi-shop" style="font-size: 3.5rem;"></i>
+        <img src="/assets/imgs/favicon.png" alt="logo" width="120" height="120" class="mb-2">
         <h1 class="h4 fw-bold mt-2">Log in to EasyManage</h1>
-        {{#if message}}
-          <p class="text-danger small mt-2 mb-0">{{message}}</p>
-        {{/if}}
+        <p class="text-danger small mt-2 mb-0 d-none" id="errorMsg"></p>
       </div>
 
       <!-- Fields -->
@@ -18,21 +16,76 @@
         <label for="floatingInput">Username or email</label>
       </div>
 
-      <div class="form-floating mb-3">
-        <input type="password" name="password" class="form-control" id="floatingPassword"
-          placeholder="Password" required />
+      <div class="form-floating mb-3 position-relative">
+        <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password" required />
         <label for="floatingPassword">Password</label>
+        <!-- Nút con mắt -->
+        <span id="togglePassword" class="position-absolute end-0 top-50 translate-middle-y me-3"
+          style="cursor: pointer; z-index: 10;">
+          <i class="bi bi-eye" id="eyeIcon"></i>
+        </span>
       </div>
 
-      <button class="w-100 btn btn-lg btn-dark" type="submit">Log in</button>
+      <button class="w-100 btn btn-lg btn-dark" type="submit" id="loginBtn">Log in</button>
 
       <hr class="my-4" />
-
       <div class="d-flex justify-content-between">
-        <!-- <a href="/register" class="small">Sign up</a> -->
         <a href="/reset-password" class="small">Forgot password?</a>
       </div>
 
     </form>
   </div>
 </main>
+
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+      const passwordInput = document.getElementById('floatingPassword');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.replace('bi-eye', 'bi-eye-slash'); 
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
+      }
+    });
+
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('loginBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    
+    // show loading
+    btn.disabled = true;
+    btn.textContent = 'Đang đăng nhập...';
+    errorMsg.classList.add('d-none');
+
+    const usernameOrEmail = document.getElementById('floatingInput').value;
+    const password = document.getElementById('floatingPassword').value;
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usernameOrEmail, password })
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        window.location.href = result.redirect;
+      } else {
+        errorMsg.textContent = result.message;
+        errorMsg.classList.remove('d-none');
+      }
+    } catch (error) {
+      errorMsg.textContent = 'Something went wrong. Please try again.';
+      errorMsg.classList.remove('d-none');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Log in';
+    }
+  });
+</script>

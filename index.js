@@ -18,7 +18,7 @@ app.engine('hbs', expressHbs.engine({
   defaultLayout: "layout",
   helpers: {
     eq: (a, b) => a === b,
-    // createPagination,
+
     formatDate: (date) => {
       return date.toLocaleDateString("en-US", {
         year: "numeric",
@@ -26,6 +26,16 @@ app.engine('hbs', expressHbs.engine({
         day: "numeric",
       });
     },
+
+    formatPrice: (price) => price ? Number(price).toLocaleString('vi-VN') + 'đ' : '—',
+    
+    json: (data) => JSON.stringify(data),
+    
+    marginClass: (margin) => {
+      if (margin >= 40) return 'text-success';
+      if (margin >= 20) return 'text-warning';
+      return 'text-danger';
+    }
   }
 }));
 
@@ -53,13 +63,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-// ------- Authenticate ------------
-app.use("/", require("./routes/authRouter"));
+// Pages routes
+app.use("/", require("./routes/authRoutes"));
 // ---------------------------------
-app.use("/report", require("./routes/reportRouter"));
+app.use("/report", require("./routes/reportRoutes"));
 
-app.use("/products", require("./routes/productRouter"));
+app.use("/products", require("./routes/productRoutes"));
+
+// API routes
+app.use('/api/auth', require('./routes/api/authApiRoutes'));
+// app.use('/api/products', require('./routes/api/productApiRoutes'));
 
 app.get('/categories', (req, res) => {
   res.render('wip', { 
