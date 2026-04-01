@@ -1,5 +1,5 @@
 const controller = {};
-const { User } = require("../../models");
+const { User } = require("../../../models");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 

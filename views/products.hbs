@@ -12,11 +12,19 @@
         <div class="d-flex flex-column gap-3">
           <div>
             <label class="form-label fw-semibold">Tên mặt hàng <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="inputName" placeholder="Nhập tên mặt hàng..." />
+            <input type="text" class="form-control" id="inputName" list="nameList" placeholder="Nhập tên mặt hàng..."
+              autocomplete="on" />
+            <div id="nameFeedback" class="form-text"></div>
+            <datalist id="nameList">
+
+            </datalist>
           </div>
           <div>
             <label class="form-label fw-semibold">Danh mục</label>
-            <input type="text" class="form-control" id="inputCategory" placeholder="Ví dụ: Cà phê, Trà..." />
+            <input type="text" class="form-control" id="inputCategory" list="categoryList"
+              placeholder="Ví dụ: Cà phê, Trà..." autocomplete="on" />
+            <datalist id="categoryList">
+            </datalist>
           </div>
           <div class="row g-2">
             <div class="col-6">
@@ -79,8 +87,17 @@
     <!-- Top bar -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
       <div class="d-flex gap-2">
+        <div class="p-0 bg-white rounded border border-dark-subtle d-flex align-items-center" id="statusFilter">
+          <button id="activedProduct" class="btn rounded-end-0 fw-bold product-status-btn">
+            <span>Còn bán</span>
+          </button>
+          <button id="inactivedProduct" class="btn rounded-start-0 fw-bold product-status-btn-disabled">
+            <span>Ngừng bán</span>
+          </button>
+        </div>
         <button class="btn btn-success fw-bold" id="addNewBtn" data-bs-toggle="modal" data-bs-target="#productModal">
-          <i class="bi bi-plus-circle-fill me-1"></i>Thêm mặt hàng
+          <i class="bi bi-plus-circle-fill me-1"></i>
+          <span>Thêm mặt hàng</span>
         </button>
       </div>
       <div class="input-group" style="max-width:240px;">
@@ -175,52 +192,7 @@
           <col class="col-action" />
         </colgroup>
         <tbody id="productTable">
-          {{#if productData}}
-          {{#each productData}}
-          <tr data-id="{{id}}">
-            <td class="ps-3">
-              <input type="checkbox" class="form-check-input row-check" data-id="{{id}}" />
-            </td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <span style="font-size:1.3rem;">{{emoji}}</span>
-                <span class="fw-semibold">{{name}}</span>
-              </div>
-            </td>
-            <td>
-              <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">
-                {{#if category}}{{category}}{{else}}—{{/if}}
-              </span>
-            </td>
-            <td class="fw-bold text-warning">{{formatPrice price}}</td>
-            <td class="text-muted">{{formatPrice cost}}</td>
-            <td>
-              {{#if margin}}
-              <span class="badge bg-opacity-10 fw-normal {{marginClass margin}}">{{margin}}%</span>
-              {{else}}
-              —
-              {{/if}}
-            </td>
-            <td>
-              <div class="d-flex gap-1 justify-content-end pe-2">
-                <button class="btn btn-sm btn-outline-secondary" onclick="editProduct('{{id}}')">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="promptDelete('{{id}}', '{{name}}')">
-                  <i class="bi bi-trash3"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-          {{/each}}
-          {{else}}
-          <tr>
-            <td colspan="7" class="text-center text-muted py-5">
-              <i class="bi bi-box-seam fs-2 d-block mb-2"></i>
-              Không tìm thấy mặt hàng nào
-            </td>
-          </tr>
-          {{/if}}
+          <!-- Render products here -->
         </tbody>
       </table>
     </div>
@@ -238,90 +210,183 @@
 </div>
 
 <script>
-  let products = [
-    { id: 1, name: 'Cà phê đá', category: 'Cà phê', price: 15000, cost: 8000, emoji: '☕' },
-    { id: 2, name: 'Cà phê sữa', category: 'Cà phê', price: 18000, cost: 10000, emoji: '🥛' },
-    { id: 3, name: 'Bạc xỉu', category: 'Cà phê', price: 20000, cost: 12000, emoji: '🍶' },
-    { id: 4, name: 'Trà tắc', category: 'Trà', price: 15000, cost: 6000, emoji: '🍋' },
-    { id: 5, name: 'Nước cam', category: 'Nước ép', price: 20000, cost: 10000, emoji: '🍊' },
-    { id: 6, name: 'Sinh tố xoài', category: 'Sinh tố', price: 25000, cost: 12000, emoji: '🥭' },
-    { id: 7, name: 'Cacao sữa đá', category: 'Cacao', price: 20000, cost: 9000, emoji: '🍫' },
-    { id: 8, name: 'Rong biển', category: 'Trà', price: 10000, cost: 4000, emoji: '🌿' },
-  ];
+  // Button for filtering active/inactive products
+  document.getElementById('statusFilter').addEventListener('click', function (e) {
+    const clickedBtn = e.target.closest('.product-status-btn, .product-status-btn-disabled');
+    if (!clickedBtn || clickedBtn.classList.contains('product-status-btn')) return;
 
-  let deleteTargetId = null;
-  let nextId = 9;
+    const isActive = clickedBtn.id === 'activedProduct';
 
-  // ── Render ──────────────────────────────────────────────
-  function renderTable(data = products) {
-    const tbody = document.getElementById('productTable');
+    document.getElementById('statusFilter').querySelectorAll('button').forEach(btn => {
+      btn.classList.toggle('product-status-btn');
+      btn.classList.toggle('product-status-btn-disabled');
+    });
 
-    if (data.length === 0) {
-      tbody.innerHTML = `
+    asyncRenderTable(isActive);
+  });
+
+  // Setup autocomplete options for category and name inputs
+  function setupCategoryAndNameAutocomplete(products) {
+    const categoryList = document.getElementById('categoryList');
+    const nameList = document.getElementById('nameList');
+
+    // Get unique category names
+    const uniqueCategories = [...new Set(products.map(p => p.Category?.name))]
+      .filter(name => name)
+      .sort();
+
+    // Create option elements
+    categoryList.innerHTML = uniqueCategories
+      .map(cat => `<option value="${cat}">`)
+      .join('');
+
+    // Get unique product names
+    const uniqueNames = [...new Set(products.map(p => p.name))]
+      .filter(name => name)
+      .sort();
+
+    // Create option elements
+    nameList.innerHTML = uniqueNames
+      .map(name => `<option value="${name}">`)
+      .join('');
+  }
+
+  let nameCheckTimeout = null;
+
+  document.getElementById('inputName').addEventListener('input', async function () {
+    const name = this.value.trim();
+    const saveBtn = document.getElementById('saveBtn');
+    const feedback = document.getElementById('nameFeedback');
+
+    // clear previous timeout
+    clearTimeout(nameCheckTimeout);
+
+    if (!name) {
+      feedback.textContent = '';
+      feedback.className = 'form-text';
+      saveBtn.disabled = false;
+      return;
+    }
+
+    // debounce - wait 500ms after user stops typing
+    nameCheckTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/v1/products/check-name?name=${encodeURIComponent(name)}`);
+        const result = await res.json();
+
+        if (result.exists && result.is_active === false) {
+          feedback.textContent = '⚠️ Mặt hàng này đã bị xóa — bạn có muốn khôi phục không?';
+          feedback.className = 'form-text text-warning';
+          saveBtn.disabled = true;
+        } else if (result.exists) {
+          feedback.textContent = '✗ Mặt hàng này đã tồn tại';
+          feedback.className = 'form-text text-danger';
+          saveBtn.disabled = true;
+        } else {
+          feedback.textContent = '✓ Tên hợp lệ';
+          feedback.className = 'form-text text-success';
+          saveBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Name check failed:', error);
+      }
+    }, 500);
+  });
+
+  // Render the product table according to the current filter (active/inactive)
+  async function asyncRenderTable(is_active = true) {
+    try {
+      const res = await fetch(`/api/v1/products/${is_active ? '' : 'inactive'}`);
+      const result = await res.json();
+
+      if (!result.success) {
+        console.error('Failed to fetch products:', result.message);
+        return;
+      }
+
+      const products = result.data;
+      const tbody = document.getElementById('productTable');
+
+
+      if (products.length === 0) {
+        tbody.innerHTML = `
         <tr><td colspan="7" class="text-center text-muted py-5">
           <i class="bi bi-box-seam fs-2 d-block mb-2"></i>
           Không tìm thấy mặt hàng nào
         </td></tr>`;
-      updateStats();
-      return;
+        updateStats();
+        return;
+      }
+
+      tbody.innerHTML = products.map(p => {
+        const profit = p.price - (p.cost || 0);
+        const margin = p.cost ? Math.round((profit / p.price) * 100) : null;
+        return `
+      <tr data-id="${p.id}">
+        <td class="ps-3">
+          <input type="checkbox" class="form-check-input row-check" data-id="${p.id}" />
+        </td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <span style="font-size:1.3rem;">${p.image || '🍵'}</span>
+            <span class="fw-semibold">${p.name}</span>
+          </div>
+        </td>
+        <td>
+          <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">${p.Category.name || '—'}</span>
+        </td>
+        <td class="fw-bold text-warning">${p.price.toLocaleString('vi-VN')}đ</td>
+        <td class="text-muted">${p.cost ? p.cost.toLocaleString('vi-VN') + 'đ' : '—'}</td>
+        <td>
+          ${margin !== null
+            ? `<span class="badge ${margin >= 40 ? 'bg-success' : margin >= 20 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-10 ${margin >= 40 ? 'text-success' : margin >= 20 ? 'text-warning' : 'text-danger'} fw-normal">${margin}%</span>`
+            : '—'}
+        </td>
+        <td>
+          <div class="d-flex gap-1 justify-content-end pe-2">
+            <button class="btn btn-sm btn-outline-secondary" onclick="editProduct(${p.id})">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="promptDelete(${p.id})">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      `;
+      }).join('');
+
+      updateStats(products);
+      setupCategoryAndNameAutocomplete(products);
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-
-    tbody.innerHTML = data.map(p => {
-      const profit = p.price - (p.cost || 0);
-      const margin = p.cost ? Math.round((profit / p.price) * 100) : null;
-      return `
-        <tr data-id="${p.id}">
-          <td class="ps-3">
-            <input type="checkbox" class="form-check-input row-check" data-id="${p.id}" />
-          </td>
-          <td>
-            <div class="d-flex align-items-center gap-2">
-              <span style="font-size:1.3rem;">${p.emoji || '🍵'}</span>
-              <span class="fw-semibold">${p.name}</span>
-            </div>
-          </td>
-          <td>
-            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">${p.category || '—'}</span>
-          </td>
-          <td class="fw-bold text-warning">${p.price.toLocaleString('vi-VN')}đ</td>
-          <td class="text-muted">${p.cost ? p.cost.toLocaleString('vi-VN') + 'đ' : '—'}</td>
-          <td>
-            ${margin !== null
-              ? `<span class="badge ${margin >= 40 ? 'bg-success' : margin >= 20 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-10 ${margin >= 40 ? 'text-success' : margin >= 20 ? 'text-warning' : 'text-danger'} fw-normal">${margin}%</span>`
-              : '—'}
-          </td>
-          <td>
-            <div class="d-flex gap-1 justify-content-end pe-2">
-              <button class="btn btn-sm btn-outline-secondary" onclick="editProduct(${p.id})">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger" onclick="promptDelete(${p.id})">
-                <i class="bi bi-trash3"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-        `;
-    }).join('');
-
-    document.querySelectorAll('.row-check').forEach(cb => {
-      cb.addEventListener('change', updateBulkBar);
-    });
-
-    updateStats();
   }
 
-  // ── Stats ────────────────────────────────────────────────
-  function updateStats() {
-    const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+  // Stats 
+  function updateStats(products = []) {
+    const categories = [...new Set(products.map(p => p.Category?.name))].filter(c => c);
+
     const prices = products.map(p => p.price);
+
     document.getElementById('statTotal').textContent = products.length;
     document.getElementById('statCategories').textContent = categories.length;
-    document.getElementById('statMaxPrice').textContent = prices.length ? Math.max(...prices).toLocaleString('vi-VN') + 'đ' : '0đ';
-    document.getElementById('statMinPrice').textContent = prices.length ? Math.min(...prices).toLocaleString('vi-VN') + 'đ' : '0đ';
+
+    if (prices.length > 0) {
+      const max = Math.max(...prices);
+      const min = Math.min(...prices);
+      document.getElementById('statMaxPrice').textContent = `${max.toLocaleString('vi-VN')}đ`;
+      document.getElementById('statMinPrice').textContent = `${min.toLocaleString('vi-VN')}đ`;
+    } else {
+      document.getElementById('statMaxPrice').textContent = '0đ';
+      document.getElementById('statMinPrice').textContent = '0đ';
+    }
   }
 
-  // ── Add / Edit ───────────────────────────────────────────
+
+
+
+  // Add / Edit 
   document.getElementById('addNewBtn').addEventListener('click', () => {
     document.getElementById('modalTitle').textContent = 'Thêm mặt hàng';
     document.getElementById('editId').value = '';
@@ -429,6 +494,6 @@
     new bootstrap.Toast(document.getElementById('toast'), { delay: time }).show();
   }
 
-  // ── Init ─────────────────────────────────────────────────
-  renderTable();
+  // Init
+  asyncRenderTable();
 </script>

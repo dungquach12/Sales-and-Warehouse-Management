@@ -1,5 +1,5 @@
 <main class="d-flex align-items-center justify-content-center py-4 px-3">
-  <div class="w-100" style="max-width: 420px;">
+  <div class="col-12 col-md-8 col-lg-5">
     <form id="loginForm" class="bg-white rounded-3 p-4 shadow-sm">
 
       <!-- Logo + title -->
@@ -19,7 +19,7 @@
       <div class="form-floating mb-3 position-relative">
         <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password" required />
         <label for="floatingPassword">Password</label>
-        <!-- Nút con mắt -->
+
         <span id="togglePassword" class="position-absolute end-0 top-50 translate-middle-y me-3"
           style="cursor: pointer; z-index: 10;">
           <i class="bi bi-eye" id="eyeIcon"></i>
@@ -38,18 +38,18 @@
 </main>
 
 <script>
-    document.getElementById('togglePassword').addEventListener('click', function () {
-      const passwordInput = document.getElementById('floatingPassword');
-      const eyeIcon = document.getElementById('eyeIcon');
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    const passwordInput = document.getElementById('floatingPassword');
+    const eyeIcon = document.getElementById('eyeIcon');
 
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeIcon.classList.replace('bi-eye', 'bi-eye-slash'); 
-      } else {
-        passwordInput.type = 'password';
-        eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
-      }
-    });
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeIcon.classList.replace('bi-eye', 'bi-eye-slash'); 
+    } else {
+      passwordInput.type = 'password';
+      eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+  });
 
   document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -66,7 +66,7 @@
     const password = document.getElementById('floatingPassword').value;
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usernameOrEmail, password })

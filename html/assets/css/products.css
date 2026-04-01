@@ -18,7 +18,6 @@ min-height: 0;
 margin-bottom: 0;
 }
 
-/* Fix column widths to align header and body */
 .col-check  { width: 44px; }
 .col-name   { width: 30%; }
 .col-cat    { width: 15%; }
@@ -26,3 +25,15 @@ margin-bottom: 0;
 .col-cost   { width: 13%; }
 .col-profit { width: 13%; }
 .col-action { width: 100px; }
+
+.product-status-btn {
+  background-color: white;
+  color: #0d6efd;
+  pointer-events: none;
+}
+
+.product-status-btn-disabled {
+  background-color: #e2e3e5;
+  color: #6c757d;
+}
+

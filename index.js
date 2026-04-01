@@ -71,8 +71,8 @@ app.use("/report", require("./routes/reportRoutes"));
 app.use("/products", require("./routes/productRoutes"));
 
 // API routes
-app.use('/api/auth', require('./routes/api/authApiRoutes'));
-// app.use('/api/products', require('./routes/api/productApiRoutes'));
+app.use('/api/v1/auth', require('./routes/api/v1/authApiRoutes'));
+app.use('/api/v1/products', require('./routes/api/v1/productApiRoutes'));
 
 app.get('/categories', (req, res) => {
   res.render('wip', { 
