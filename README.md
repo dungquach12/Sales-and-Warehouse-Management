@@ -4,7 +4,7 @@ A simple web app for managing products, customers, orders and sales reporting. B
 
 ## What it does
 
-- **User Management**: Register, login with secure password hashing
+- **User Management**: login with secure password hashing
 - **Product & Category Management**: Create, update, delete products and organize by category
 - **Order Management**: Track customer orders and order items with real-time updates
 - **Sales Reporting**: View revenue reports with profit margin analysis
