@@ -63,4 +63,62 @@ controller.createProduct = async (req, res) => {
     }
 };
 
+controller.archiveProduct = async (req, res) => {
+    console.log("Archive product request received");
+    const { id } = req.params;
+    try {
+        await Product.update({ is_active: false }, { where: { id } });
+        res.json({ success: true, message: "Product archived" });
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+};
+
+controller.unarchiveProduct = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await Product.update({ is_active: true }, { where: { id } });
+        res.json({ success: true, message: "Product restored" });
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+};
+
+controller.deleteProduct = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await Product.destroy({ where: { id }, force: true });
+        res.json({ success: true, message: "Product deleted" });
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+};
+
+controller.editProduct = async (req, res) => {   
+    console.log("Edit product request received");
+    const { id } = req.params;
+    const { name, price, cost, category, image } = req.body;
+
+    let categoryId = null;
+    if (category) {
+        const foundCategory = await Category.findOne({ where: { name: category } });
+        if (foundCategory) {
+            categoryId = foundCategory.id;
+        } else {
+            return res.status(400).json({ success: false, message: "Category not found" });
+        }  
+    } 
+
+    try {
+        await Product.update({ name, price, cost, categoryId, image }, { where: { id } });
+        res.json({ success: true, message: "Product updated" });
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+};
+
 module.exports = controller;

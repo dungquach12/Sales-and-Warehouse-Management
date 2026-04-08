@@ -9,6 +9,8 @@ rightMenuToggle.addEventListener('click', function () {
     const bsCollapse = bootstrap.Collapse.getInstance(el);
     if (bsCollapse) bsCollapse.hide();
   });
+
+  updateContentPadding();
 });
 
 // expand sidebar when submenu clicked while collapsed
@@ -19,3 +21,11 @@ document.querySelectorAll('.submenu-trigger').forEach(el => {
     }
   });
 });
+
+function updateContentPadding() {
+  const bottomMenu = document.querySelector('.bottomMenu-container');
+  const content = document.querySelector('.content-container');
+  if (bottomMenu && content) {
+    content.style.paddingBottom = `${bottomMenu.offsetHeight + 16}px`;
+  }
+}

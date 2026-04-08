@@ -1,11 +1,13 @@
 const express = require("express");
 
 const checkAuth = (req, res, next) => {
-    if (req.session.userId) {
-        next(); // User is authenticated, proceed to the next middleware/route handler
-    } else {
-        res.redirect("/login"); // User is not authenticated, redirect to login
+    if (req.session.userId) return next();
+
+    if (req.originalUrl.startsWith('/api/')) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
     }
+    
+    res.redirect("/login");
 };
 
-module.exports = { checkAuth }
+module.exports = { checkAuth };

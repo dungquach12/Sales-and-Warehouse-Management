@@ -28,13 +28,19 @@ app.engine('hbs', expressHbs.engine({
     },
 
     formatPrice: (price) => price ? Number(price).toLocaleString('vi-VN') + 'đ' : '—',
-    
+
     json: (data) => JSON.stringify(data),
-    
+
     marginClass: (margin) => {
       if (margin >= 40) return 'text-success';
       if (margin >= 20) return 'text-warning';
       return 'text-danger';
+    },
+
+    section: function (name, options) {
+      if (!this._sections) this._sections = {};
+      this._sections[name] = options.fn(this);
+      return null;
     }
   }
 }));
@@ -42,19 +48,19 @@ app.engine('hbs', expressHbs.engine({
 app.set("view engine", "hbs");
 
 // Middleware to parse request bodies
-app.use(express.json()); 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session config
 app.use(session({
-    secret: process.env.SESSION_SECRET || "my secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 20 * 60 * 1000, // 20 minutes
-        httpOnly: true,
-        secret: false, // True if use https
-    }
+  secret: process.env.SESSION_SECRET || "my secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 20 * 60 * 1000, // 20 minutes
+    httpOnly: true,
+    secret: false, // True if use https
+  }
 }))
 
 // Make session available to templates
@@ -75,15 +81,15 @@ app.use('/api/v1/auth', require('./routes/api/v1/authApiRoutes'));
 app.use('/api/v1/products', require('./routes/api/v1/productApiRoutes'));
 
 app.get('/categories', (req, res) => {
-  res.render('wip', { 
+  res.render('wip', {
     title: 'Mẫu mã',
     activeMenu: 'categories',
-    activeParent: 'productManage' 
+    activeParent: 'productManage'
   });
 });
 
 app.get('/sales', (req, res) => {
-  res.render('sales', { 
+  res.render('sales', {
     title: 'Bán hàng',
     activeMenu: 'sales',
     pageCSS: 'sales.css'
@@ -91,16 +97,16 @@ app.get('/sales', (req, res) => {
 });
 
 app.get('/notifications', (req, res) => {
-  res.render('wip', { 
+  res.render('wip', {
     title: 'Thông báo',
     activeMenu: 'notifications',
-    activeParent: 'productManage' 
+    activeParent: 'productManage'
   });
 });
 
 
 app.get('/menu', (req, res) => {
-  res.render('wip', { 
+  res.render('wip', {
     title: 'Menu',
     activeMenu: 'menu',
     activeParent: 'productManage',

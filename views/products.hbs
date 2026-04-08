@@ -1,14 +1,19 @@
+{{#section 'head'}}
+<script src="/assets/scripts/product.js" defer></script>
+{{/section}}
+
+
 <!-- Product Management Page -->
-<!-- Add / Edit Modal -->
+<!-- Add / Edit Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
+        <input type="text" hidden id="productId" />
         <h5 class="modal-title fw-bold" id="modalTitle">Thêm mặt hàng</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <input type="hidden" id="editId" />
         <div class="d-flex flex-column gap-3">
           <div>
             <label class="form-label fw-semibold">Tên mặt hàng <span class="text-danger">*</span></label>
@@ -21,10 +26,9 @@
           </div>
           <div>
             <label class="form-label fw-semibold">Danh mục</label>
-            <input type="text" class="form-control" id="inputCategory" list="categoryList"
-              placeholder="Ví dụ: Cà phê, Trà..." autocomplete="on" />
-            <datalist id="categoryList">
-            </datalist>
+            <select name="category" id="categorySelect" class="form-control">
+              <option value="" disabled selected>-- Chọn danh mục --</option>
+            </select>
           </div>
           <div class="row g-2">
             <div class="col-6">
@@ -44,14 +48,14 @@
           </div>
           <div>
             <label class="form-label fw-semibold">Emoji</label>
-            <input type="text" class="form-control" id="inputEmoji" placeholder="☕" maxlength="2" />
+            <input type="text" class="form-control" id="inputImage" placeholder="☕" maxlength="2" />
             <div class="form-text">Chọn một emoji đại diện cho mặt hàng</div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-success fw-bold" id="saveBtn">
+        <button type="button" class="btn btn-success fw-bold" id="saveBtn" onclick="submitProduct()">
           <i class="bi bi-check-lg me-1"></i>Lưu
         </button>
       </div>
@@ -59,20 +63,49 @@
   </div>
 </div>
 
-<!-- Delete Confirm Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
+<!-- Add Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Thêm danh mục</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Tên danh mục <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="newCategoryName" placeholder="Nhập tên danh mục..." />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-success fw-bold" id="saveCategoryBtn">
+          <i class="bi bi-check-lg me-1"></i>Lưu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Archive / Unarchive Confirm Modal -->
+<div class="modal fade" id="archiveModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content">
       <div class="modal-body text-center py-4">
-        <i class="bi bi-trash3 text-danger fs-1 d-block mb-3"></i>
-        <h6 class="fw-bold">Xóa mặt hàng?</h6>
-        <p class="text-muted small mb-0" id="deleteProductName"></p>
+        <i id="archiveModalIcon" class="bi bi-archive text-warning fs-1 d-block mb-3"></i>
+
+        <h6 id="archiveModalTitle" class="fw-bold">Lưu vào kho mặt hàng?</h6>
+
+        <input type="hidden" id="archiveProductId" />
+        <p class="text-muted small mb-0" id="archiveProductNameDisplay"></p>
       </div>
-      <div class="modal-footer border-0 justify-content-center gap-2">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-danger fw-bold" id="confirmDeleteBtn">
-          <i class="bi bi-trash3 me-1"></i>Xóa
-        </button>
+      <div class="modal-footer border-0 justify-content-center">
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-warning fw-bold" id="confirmArchiveBtn" onclick="handleArchiveToggle()">
+            Xác nhận
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -95,16 +128,24 @@
             <span>Ngừng bán</span>
           </button>
         </div>
-        <button class="btn btn-success fw-bold" id="addNewBtn" data-bs-toggle="modal" data-bs-target="#productModal">
+      </div>
+      <div class="d-inline-flex gap-2">
+        <div class="input-group" style="max-width:240px;">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Tìm kiếm..." />
+        </div>
+        <button class="btn btn-success fw-bold" id="addProductBtn" data-bs-toggle="modal" data-bs-target="#productModal"
+          onclick="prepareAddProductModal()">
           <i class="bi bi-plus-circle-fill me-1"></i>
           <span>Thêm mặt hàng</span>
         </button>
-      </div>
-      <div class="input-group" style="max-width:240px;">
-        <span class="input-group-text bg-white border-end-0">
-          <i class="bi bi-search text-muted"></i>
-        </span>
-        <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Tìm kiếm..." />
+        <button class="btn btn-success fw-bold" id="addCategoryBtn" data-bs-toggle="modal"
+          data-bs-target="#categoryModal" onclick="prepareAddCategoryModal()">
+          <i class="bi bi-plus-circle-fill me-1"></i>
+          <span>Thêm danh mục</span>
+        </button>
       </div>
     </div>
 
@@ -112,7 +153,7 @@
     <div class="row g-2">
       <div class="col-6 col-md-3">
         <div class="card border-0 bg-success bg-opacity-10">
-          <div class="card-body py-3">
+          <div class="card-body py-3 stat-card">
             <div class="text-muted small">Tổng mặt hàng</div>
             <div class="fw-bold fs-4" id="statTotal">0</div>
           </div>
@@ -120,7 +161,7 @@
       </div>
       <div class="col-6 col-md-3">
         <div class="card border-0 bg-warning bg-opacity-10">
-          <div class="card-body py-3">
+          <div class="card-body py-3 stat-card">
             <div class="text-muted small">Danh mục</div>
             <div class="fw-bold fs-4" id="statCategories">0</div>
           </div>
@@ -128,7 +169,7 @@
       </div>
       <div class="col-6 col-md-3">
         <div class="card border-0 bg-info bg-opacity-10">
-          <div class="card-body py-3">
+          <div class="card-body py-3 stat-card">
             <div class="text-muted small">Giá cao nhất</div>
             <div class="fw-bold fs-4" id="statMaxPrice">0đ</div>
           </div>
@@ -136,7 +177,7 @@
       </div>
       <div class="col-6 col-md-3">
         <div class="card border-0 bg-danger bg-opacity-10">
-          <div class="card-body py-3">
+          <div class="card-body py-3 stat-card">
             <div class="text-muted small">Giá thấp nhất</div>
             <div class="fw-bold fs-4" id="statMinPrice">0đ</div>
           </div>
@@ -160,14 +201,39 @@
         <table class="table table-borderless align-middle mb-0">
           <thead class="table-secondary">
             <tr>
-              <th class="ps-3 col-check">
-                <input type="checkbox" class="form-check-input" id="checkAll" />
+              <th class="ps-3 pb-3 col-check">
+                <input type="checkbox" class="form-check-input fs-5" id="checkAll" onclick="showBulkArchive()" />
               </th>
-              <th class="col-name">Mặt hàng</th>
-              <th class="col-cat">Danh mục</th>
-              <th class="col-price">Giá bán</th>
-              <th class="col-cost">Chi phí</th>
-              <th class="col-profit">Lợi nhuận</th>
+              <th class="col-name">
+                <span>Mặt hàng</span>
+                <button class="btn ms-auto" id="nameSortBtn">
+                  <i class="bi bi-filter"></i>
+                </button>
+              </th>
+              <th class="col-cat">
+                <span>Danh mục</span>
+                <button class="btn ms-auto" id="categorySortBtn">
+                  <i class="bi bi-filter"></i>
+                </button>
+              </th>
+              <th class="col-price">
+                <span></span>Giá bán</span>
+                <button class="btn ms-auto" id="priceSortBtn">
+                  <i class="bi bi-filter"></i>
+                </button>
+              </th>
+              <th class="col-cost">
+                <span>Chi phí</span>
+                <button class="btn ms-auto" id="costSortBtn">
+                  <i class="bi bi-filter"></i>
+                </button>
+              </th>
+              <th class="col-profit">
+                <span>Lợi nhuận</span>
+                <button class="btn ms-auto" id="profitSortBtn">
+                  <i class="bi bi-filter"></i>
+                </button>
+              </th>
               <th class="col-action"></th>
             </tr>
 
@@ -210,290 +276,5 @@
 </div>
 
 <script>
-  // Button for filtering active/inactive products
-  document.getElementById('statusFilter').addEventListener('click', function (e) {
-    const clickedBtn = e.target.closest('.product-status-btn, .product-status-btn-disabled');
-    if (!clickedBtn || clickedBtn.classList.contains('product-status-btn')) return;
 
-    const isActive = clickedBtn.id === 'activedProduct';
-
-    document.getElementById('statusFilter').querySelectorAll('button').forEach(btn => {
-      btn.classList.toggle('product-status-btn');
-      btn.classList.toggle('product-status-btn-disabled');
-    });
-
-    asyncRenderTable(isActive);
-  });
-
-  // Setup autocomplete options for category and name inputs
-  function setupCategoryAndNameAutocomplete(products) {
-    const categoryList = document.getElementById('categoryList');
-    const nameList = document.getElementById('nameList');
-
-    // Get unique category names
-    const uniqueCategories = [...new Set(products.map(p => p.Category?.name))]
-      .filter(name => name)
-      .sort();
-
-    // Create option elements
-    categoryList.innerHTML = uniqueCategories
-      .map(cat => `<option value="${cat}">`)
-      .join('');
-
-    // Get unique product names
-    const uniqueNames = [...new Set(products.map(p => p.name))]
-      .filter(name => name)
-      .sort();
-
-    // Create option elements
-    nameList.innerHTML = uniqueNames
-      .map(name => `<option value="${name}">`)
-      .join('');
-  }
-
-  let nameCheckTimeout = null;
-
-  document.getElementById('inputName').addEventListener('input', async function () {
-    const name = this.value.trim();
-    const saveBtn = document.getElementById('saveBtn');
-    const feedback = document.getElementById('nameFeedback');
-
-    // clear previous timeout
-    clearTimeout(nameCheckTimeout);
-
-    if (!name) {
-      feedback.textContent = '';
-      feedback.className = 'form-text';
-      saveBtn.disabled = false;
-      return;
-    }
-
-    // debounce - wait 500ms after user stops typing
-    nameCheckTimeout = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/v1/products/check-name?name=${encodeURIComponent(name)}`);
-        const result = await res.json();
-
-        if (result.exists && result.is_active === false) {
-          feedback.textContent = '⚠️ Mặt hàng này đã bị xóa — bạn có muốn khôi phục không?';
-          feedback.className = 'form-text text-warning';
-          saveBtn.disabled = true;
-        } else if (result.exists) {
-          feedback.textContent = '✗ Mặt hàng này đã tồn tại';
-          feedback.className = 'form-text text-danger';
-          saveBtn.disabled = true;
-        } else {
-          feedback.textContent = '✓ Tên hợp lệ';
-          feedback.className = 'form-text text-success';
-          saveBtn.disabled = false;
-        }
-      } catch (error) {
-        console.error('Name check failed:', error);
-      }
-    }, 500);
-  });
-
-  // Render the product table according to the current filter (active/inactive)
-  async function asyncRenderTable(is_active = true) {
-    try {
-      const res = await fetch(`/api/v1/products/${is_active ? '' : 'inactive'}`);
-      const result = await res.json();
-
-      if (!result.success) {
-        console.error('Failed to fetch products:', result.message);
-        return;
-      }
-
-      const products = result.data;
-      const tbody = document.getElementById('productTable');
-
-
-      if (products.length === 0) {
-        tbody.innerHTML = `
-        <tr><td colspan="7" class="text-center text-muted py-5">
-          <i class="bi bi-box-seam fs-2 d-block mb-2"></i>
-          Không tìm thấy mặt hàng nào
-        </td></tr>`;
-        updateStats();
-        return;
-      }
-
-      tbody.innerHTML = products.map(p => {
-        const profit = p.price - (p.cost || 0);
-        const margin = p.cost ? Math.round((profit / p.price) * 100) : null;
-        return `
-      <tr data-id="${p.id}">
-        <td class="ps-3">
-          <input type="checkbox" class="form-check-input row-check" data-id="${p.id}" />
-        </td>
-        <td>
-          <div class="d-flex align-items-center gap-2">
-            <span style="font-size:1.3rem;">${p.image || '🍵'}</span>
-            <span class="fw-semibold">${p.name}</span>
-          </div>
-        </td>
-        <td>
-          <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">${p.Category.name || '—'}</span>
-        </td>
-        <td class="fw-bold text-warning">${p.price.toLocaleString('vi-VN')}đ</td>
-        <td class="text-muted">${p.cost ? p.cost.toLocaleString('vi-VN') + 'đ' : '—'}</td>
-        <td>
-          ${margin !== null
-            ? `<span class="badge ${margin >= 40 ? 'bg-success' : margin >= 20 ? 'bg-warning text-dark' : 'bg-danger'} bg-opacity-10 ${margin >= 40 ? 'text-success' : margin >= 20 ? 'text-warning' : 'text-danger'} fw-normal">${margin}%</span>`
-            : '—'}
-        </td>
-        <td>
-          <div class="d-flex gap-1 justify-content-end pe-2">
-            <button class="btn btn-sm btn-outline-secondary" onclick="editProduct(${p.id})">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" onclick="promptDelete(${p.id})">
-              <i class="bi bi-trash3"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-      `;
-      }).join('');
-
-      updateStats(products);
-      setupCategoryAndNameAutocomplete(products);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  }
-
-  // Stats 
-  function updateStats(products = []) {
-    const categories = [...new Set(products.map(p => p.Category?.name))].filter(c => c);
-
-    const prices = products.map(p => p.price);
-
-    document.getElementById('statTotal').textContent = products.length;
-    document.getElementById('statCategories').textContent = categories.length;
-
-    if (prices.length > 0) {
-      const max = Math.max(...prices);
-      const min = Math.min(...prices);
-      document.getElementById('statMaxPrice').textContent = `${max.toLocaleString('vi-VN')}đ`;
-      document.getElementById('statMinPrice').textContent = `${min.toLocaleString('vi-VN')}đ`;
-    } else {
-      document.getElementById('statMaxPrice').textContent = '0đ';
-      document.getElementById('statMinPrice').textContent = '0đ';
-    }
-  }
-
-
-
-
-  // Add / Edit 
-  document.getElementById('addNewBtn').addEventListener('click', () => {
-    document.getElementById('modalTitle').textContent = 'Thêm mặt hàng';
-    document.getElementById('editId').value = '';
-    document.getElementById('inputName').value = '';
-    document.getElementById('inputCategory').value = '';
-    document.getElementById('inputPrice').value = '';
-    document.getElementById('inputCost').value = '';
-    document.getElementById('inputEmoji').value = '';
-  });
-
-  function editProduct(id) {
-    const p = products.find(p => p.id === id);
-    if (!p) return;
-    document.getElementById('modalTitle').textContent = 'Chỉnh sửa mặt hàng';
-    document.getElementById('editId').value = p.id;
-    document.getElementById('inputName').value = p.name;
-    document.getElementById('inputCategory').value = p.category || '';
-    document.getElementById('inputPrice').value = p.price;
-    document.getElementById('inputCost').value = p.cost || '';
-    document.getElementById('inputEmoji').value = p.emoji || '';
-    new bootstrap.Modal(document.getElementById('productModal')).show();
-  }
-
-  document.getElementById('saveBtn').addEventListener('click', () => {
-    const name = document.getElementById('inputName').value.trim();
-    const price = parseInt(document.getElementById('inputPrice').value);
-
-    if (!name) { showToast('⚠️ Vui lòng nhập tên mặt hàng'); return; }
-    if (!price || price <= 0) { showToast('⚠️ Vui lòng nhập giá hợp lệ'); return; }
-
-    const editId = document.getElementById('editId').value;
-    const data = {
-      name,
-      category: document.getElementById('inputCategory').value.trim(),
-      price,
-      cost: parseInt(document.getElementById('inputCost').value) || 0,
-      emoji: document.getElementById('inputEmoji').value.trim() || '🍵',
-    };
-
-    if (editId) {
-      const idx = products.findIndex(p => p.id === Number(editId));
-      products[idx] = { ...products[idx], ...data };
-      showToast('✓ Đã cập nhật mặt hàng');
-    } else {
-      products.push({ id: nextId++, ...data });
-      showToast('✓ Đã thêm mặt hàng');
-    }
-
-    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
-    renderTable();
-    filterTable();
-  });
-
-  // ── Delete ───────────────────────────────────────────────
-  function promptDelete(id) {
-    deleteTargetId = id;
-    const p = products.find(p => p.id === id);
-    document.getElementById('deleteProductName').textContent = p ? p.name : '';
-    new bootstrap.Modal(document.getElementById('deleteModal')).show();
-  }
-
-  document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-    products = products.filter(p => p.id !== deleteTargetId);
-    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-    renderTable();
-    showToast('✓ Đã xóa mặt hàng');
-  });
-
-  // ── Bulk delete ──────────────────────────────────────────
-  document.getElementById('checkAll').addEventListener('change', function () {
-    document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
-    updateBulkBar();
-  });
-
-  function updateBulkBar() {
-    const checked = document.querySelectorAll('.row-check:checked');
-    document.getElementById('selectedCount').textContent = checked.length;
-    document.getElementById('bulkBar').classList.toggle('d-none', checked.length === 0);
-  }
-
-  document.getElementById('bulkDeleteBtn').addEventListener('click', () => {
-    const ids = [...document.querySelectorAll('.row-check:checked')].map(cb => Number(cb.dataset.id));
-    products = products.filter(p => !ids.includes(p.id));
-    document.getElementById('checkAll').checked = false;
-    document.getElementById('bulkBar').classList.add('d-none');
-    renderTable();
-    showToast(`✓ Đã xóa ${ids.length} mặt hàng`);
-  });
-
-  // ── Search ───────────────────────────────────────────────
-  function filterTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = q ? products.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      (p.category && p.category.toLowerCase().includes(q))
-    ) : products;
-    renderTable(filtered);
-  }
-
-  document.getElementById('searchInput').addEventListener('input', filterTable);
-
-  // ── Toast ────────────────────────────────────────────────
-  function showToast(msg, time = 2000) {
-    document.getElementById('toastMsg').textContent = msg;
-    new bootstrap.Toast(document.getElementById('toast'), { delay: time }).show();
-  }
-
-  // Init
-  asyncRenderTable();
 </script>

@@ -37,6 +37,9 @@
     {{#if pageCSS}}
       <link rel="stylesheet" href="/assets/css/{{pageCSS}}" />
     {{/if}}
+
+    <!-- Script Injection -->
+    {{{_sections.head}}}
   </head>
 
   <body class="bg-body-tertiary">
@@ -77,7 +80,7 @@
       crossorigin="anonymous"
     ></script>
 
-    <script src="/assets/js/sidebarToggle.js"></script>
+    <script src="/assets/scripts/sidebarToggle.js"></script>
 
   
     
