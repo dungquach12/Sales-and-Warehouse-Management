@@ -1,6 +1,18 @@
-let currentIsActive = true;
+// Global state management for product page
+const state = {
+  isActive: true,
+  products: [],
+  sortBy: null,
+  sortArc: true,
+  deleteTargetId: null,
+  chosenProduct: null,
+};
 
-// Button for filtering active/inactive products
+let nameCheckTimeout = null;
+let searchTimeout = null;
+
+
+// Active/Inactive Tab Switching
 document.getElementById("statusFilter").addEventListener("click", function (e) {
     const clickedBtn = e.target.closest(
         ".product-status-btn, .product-status-btn-disabled",
@@ -8,7 +20,7 @@ document.getElementById("statusFilter").addEventListener("click", function (e) {
     if (!clickedBtn || clickedBtn.classList.contains("product-status-btn"))
         return;
 
-    currentIsActive = clickedBtn.id === "activedProduct";
+    state.isActive = clickedBtn.id === "activedProduct";
 
     document
         .getElementById("statusFilter")
@@ -18,131 +30,117 @@ document.getElementById("statusFilter").addEventListener("click", function (e) {
             btn.classList.toggle("product-status-btn-disabled");
         });
 
-    asyncRenderTable(currentIsActive);
+    asyncRenderTable(state.isActive);
     
-    // reset the checkAll checkbox and bulk bar when switching tabs
     document.getElementById("checkAll").checked = false;
     document.getElementById("bulkBar").classList.add("d-none");
 });
 
-// Setup autocomplete options for category and name inputs
+
+// Autocomplete & Name validation
 function setupCategoryAndNameAutocomplete(products) {
     const categorySelect = document.getElementById("categorySelect");
     const nameList = document.getElementById("nameList");
 
-    // Get unique category names
     const uniqueCategories = [...new Set(products.map((p) => p.Category?.name))]
         .filter((name) => name)
         .sort();
 
-    // Create option elements
     categorySelect.innerHTML =
         `<option value="" disabled selected>-- Chọn danh mục --</option>` +
         uniqueCategories
             .map((name) => `<option value="${name}"> ${name}</option>`)
             .join("");
 
-    // Get unique product names
     const uniqueNames = [...new Set(products.map((p) => p.name))]
         .filter((name) => name)
         .sort();
 
-    // Create option elements
     nameList.innerHTML = uniqueNames
         .map((name) => `<option value="${name}">`)
         .join("");
 }
 
-// Name check for add / edit form
-let nameCheckTimeout = null;
-document
-    .getElementById("inputName")
-    .addEventListener("input", async function () {
-        const name = this.value.trim();
-        const saveBtn = document.getElementById("saveBtn");
-        const feedback = document.getElementById("nameFeedback");
 
-        // clear previous timeout
-        clearTimeout(nameCheckTimeout);
+document.getElementById("inputName").addEventListener("input", async function () {
+    const name = this.value.trim();
+    const saveBtn = document.getElementById("saveBtn");
+    const feedback = document.getElementById("nameFeedback");
 
-        if (!name) {
-            feedback.textContent = "";
-            feedback.className = "form-text";
-            saveBtn.disabled = false;
-            return;
-        }
+    clearTimeout(nameCheckTimeout);
 
-        // wait 500ms after user stops typing
-        nameCheckTimeout = setTimeout(async () => {
-            try {
-                const res = await fetch(
-                    `/api/v1/products/check-name?name=${encodeURIComponent(name)}`,
-                );
-                const result = await res.json();
+    if (!name) {
+        feedback.textContent = "";
+        feedback.className = "form-text";
+        saveBtn.disabled = false;
+        return;
+    }
 
-                if (result.exists && result.is_active === false) {
-                    feedback.textContent =
-                        "⚠️ Mặt hàng này đã bị xóa — bạn có muốn khôi phục không?";
-                    feedback.className = "form-text text-warning";
-                    saveBtn.disabled = true;
-                } else if (result.exists) {
-                    feedback.textContent = "✗ Mặt hàng này đã tồn tại";
-                    feedback.className = "form-text text-danger";
-                    saveBtn.disabled = true;
-                } else {
-                    feedback.textContent = "✓ Tên hợp lệ";
-                    feedback.className = "form-text text-success";
-                    saveBtn.disabled = false;
-                }
-            } catch (error) {
-                console.error("Name check failed:", error);
+    nameCheckTimeout = setTimeout(async () => {
+        try {
+            const res = await fetch(
+                `/api/v1/products/check-name?name=${encodeURIComponent(name)}`,
+            );
+            const result = await res.json();
+
+            if (result.exists && result.is_active === false) {
+                feedback.textContent =
+                    "⚠️ Mặt hàng này đã bị xóa — bạn có muốn khôi phục không?";
+                feedback.className = "form-text text-warning";
+                saveBtn.disabled = true;
+            } else if (result.exists) {
+                feedback.textContent = "✗ Mặt hàng này đã tồn tại";
+                feedback.className = "form-text text-danger";
+                saveBtn.disabled = true;
+            } else {
+                feedback.textContent = "✓ Tên hợp lệ";
+                feedback.className = "form-text text-success";
+                saveBtn.disabled = false;
             }
-        }, 500);
-    });
+        } catch (error) {
+            console.error("Name check failed:", error);
+        }
+    }, 500);
+});
 
-// Render the product table according to the current filter (active/inactive)
-let currentProducts = [];
-let currentSortBy = null;
-let currentSortAsc = true;
 
-// fetch only when needed
+// Table rendering & Sorting
 async function asyncRenderTable(is_active = true) {
     try {
         const res = await fetch(`/api/v1/products/${is_active ? "" : "inactive"}`);
         const result = await res.json();
         if (!result.success) return;
 
-        currentProducts = result.data;
-        currentIsActive = is_active;
+        state.products = result.data;
+        state.isActive = is_active;
         renderTable();
     } catch (error) {
         console.error("Error fetching products:", error);
     }
 }
 
-// sort and render based on async data and current sort state
-function renderTable(filteredProducts = null) {
-    const products = filteredProducts || [...currentProducts];
 
-    // 1. Calculations & Sorting
-    if (currentSortBy) {
+function renderTable(filteredProducts = null) {
+    const products = filteredProducts || [...state.products];
+
+    // ┌─ Sorting
+    if (state.sortBy) {
         products.sort((a, b) => {
             let valueA, valueB;
-            // Handle nested properties or numeric conversions
-            if (currentSortBy === "Category.name") {
+            if (state.sortBy === "Category.name") {
                 valueA = a.Category?.name || "";
                 valueB = b.Category?.name || "";
             } else {
-                valueA = ["price", "cost", "profit"].includes(currentSortBy) ? Number(a[currentSortBy]) || 0 : (a[currentSortBy] || "");
-                valueB = ["price", "cost", "profit"].includes(currentSortBy) ? Number(b[currentSortBy]) || 0 : (b[currentSortBy] || "");
+                valueA = ["price", "cost", "profit"].includes(state.sortBy) ? Number(a[state.sortBy]) || 0 : (a[state.sortBy] || "");
+                valueB = ["price", "cost", "profit"].includes(state.sortBy) ? Number(b[state.sortBy]) || 0 : (b[state.sortBy] || "");
             }
-            return currentSortAsc ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
+            return state.sortArc ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
         });
     }
 
     const tbody = document.getElementById("productTable");
 
-    // 2. Empty State
+    // Handle empty state
     if (products.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">
             <i class="bi bi-box-seam fs-2 d-block mb-2"></i> Không tìm thấy mặt hàng nào
@@ -151,19 +149,16 @@ function renderTable(filteredProducts = null) {
         return;
     }
 
-    // 3. Render Rows
+    // Render Rows
     tbody.innerHTML = products.map((p) => {
         const price = Number(p.price);
         const cost = Number(p.cost) || 0;
         const profit = cost ? Math.round(((price - cost) / price) * 100) : null;
 
-        // Determine icons, tooltips, and classes based on active/inactive status
-        const editIcon = currentIsActive ? 'bi-pencil' : 'bi-arrow-counterclockwise';
-        const editTooltip = currentIsActive ? 'Chỉnh sửa' : 'Khôi phục mặt hàng';
-        const actionIcon = currentIsActive ? 'bi-archive' : 'bi-trash';
-        const actionTooltip = currentIsActive ? 'Lưu vào kho' : 'Xóa vĩnh viễn';
-        const actionClass = currentIsActive ? 'btn-outline-secondary' : 'btn-outline-danger';
-        const actionMethod = currentIsActive ? `prepareArchiveModal('${p.id}')` : `promptDelete('${p.id}')`;
+        const actionIcon = state.isActive ? 'bi-archive' : 'bi-arrow-counterclockwise';
+        const actionTooltip = state.isActive ? 'Lưu vào kho' : 'Khôi phục mặt hàng';
+        const actionClass = state.isActive ? 'btn-outline-secondary' : 'btn-outline-secondary';
+        const actionMethod = state.isActive ? `prepareArchiveModal('${p.id}')` : `prepareArchiveModal('${p.id}')`;
 
         return `
             <tr data-id="${p.id}">
@@ -184,8 +179,8 @@ function renderTable(filteredProducts = null) {
                 </td>
                 <td>
                     <div class="d-flex gap-1 justify-content-end pe-2">
-                        <button class="btn btn-sm btn-outline-primary" onclick="editProduct('${p.id}')" title="${editTooltip}" data-bs-toggle="modal" data-bs-target="#productModal">
-                            <i class="bi ${editIcon}"></i>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editProduct('${p.id}')" title="Chỉnh sửa" data-bs-toggle="modal" data-bs-target="#productModal">
+                            <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm ${actionClass}" onclick="${actionMethod}" title="${actionTooltip}">
                             <i class="bi ${actionIcon}"></i>
@@ -195,58 +190,43 @@ function renderTable(filteredProducts = null) {
             </tr>`;
     }).join("");
 
-
     updateStats(products);
     setupCategoryAndNameAutocomplete(products);
     document.querySelectorAll(".row-check").forEach(cb => cb.addEventListener("change", updateBulkBar));
 }
 
-// sort buttons just update state and re-render
+
 function handleSort(classSortBy) {
     let sortBy = classSortBy === "category" ? "Category.name" : classSortBy;
 
-    // reset all sort icons first
     document.querySelectorAll('[id$="SortBtn"] i').forEach((i) => {
         i.className = "bi bi-filter";
     });
 
-    if (currentSortBy === sortBy) {
-        currentSortAsc = !currentSortAsc;
+    if (state.sortBy === sortBy) {
+        state.sortArc = !state.sortArc;
     } else {
-        currentSortBy = sortBy;
-        currentSortAsc = true;
+        state.sortBy = sortBy;
+        state.sortArc = true;
     }
 
-    // update clicked button icon
     const btnId = `${classSortBy.replace(".", "")}SortBtn`;
     const icon = document.getElementById(btnId).querySelector("i");
-    icon.className = currentSortAsc ? "bi bi-sort-up" : "bi bi-sort-down";
+    icon.className = state.sortArc ? "bi bi-sort-up" : "bi bi-sort-down";
 
     renderTable();
 }
 
-document
-    .getElementById("nameSortBtn")
-    .addEventListener("click", () => handleSort("name"));
-document
-    .getElementById("categorySortBtn")
-    .addEventListener("click", () => handleSort("category"));
-document
-    .getElementById("priceSortBtn")
-    .addEventListener("click", () => handleSort("price"));
-document
-    .getElementById("costSortBtn")
-    .addEventListener("click", () => handleSort("cost"));
-document
-    .getElementById("profitSortBtn")
-    .addEventListener("click", () => handleSort("profit"));
+document.getElementById("nameSortBtn").addEventListener("click", () => handleSort("name"));
+document.getElementById("categorySortBtn").addEventListener("click", () => handleSort("category"));
+document.getElementById("priceSortBtn").addEventListener("click", () => handleSort("price"));
+document.getElementById("costSortBtn").addEventListener("click", () => handleSort("cost"));
+document.getElementById("profitSortBtn").addEventListener("click", () => handleSort("profit"));
 
-// Stats
+
+// Stats calculation & display
 function updateStats(products = []) {
-    const categories = [...new Set(products.map((p) => p.Category?.name))].filter(
-        (c) => c,
-    );
-
+    const categories = [...new Set(products.map((p) => p.Category?.name))].filter((c) => c);
     const prices = products.map((p) => p.price);
 
     document.getElementById("statTotal").textContent = products.length;
@@ -255,17 +235,16 @@ function updateStats(products = []) {
     if (prices.length > 0) {
         const max = Math.max(...prices);
         const min = Math.min(...prices);
-        document.getElementById("statMaxPrice").textContent =
-            `${max.toLocaleString("vi-VN")}đ`;
-        document.getElementById("statMinPrice").textContent =
-            `${min.toLocaleString("vi-VN")}đ`;
+        document.getElementById("statMaxPrice").textContent = `${max.toLocaleString("vi-VN")}đ`;
+        document.getElementById("statMinPrice").textContent = `${min.toLocaleString("vi-VN")}đ`;
     } else {
         document.getElementById("statMaxPrice").textContent = "0đ";
         document.getElementById("statMinPrice").textContent = "0đ";
     }
 }
 
-// Add product & category
+
+// Add & Edit Modal Preparation
 function prepareAddProductModal() {
     document.getElementById("modalTitle").textContent = "Thêm mặt hàng";
     document.getElementById("inputName").value = "";
@@ -275,29 +254,28 @@ function prepareAddProductModal() {
     document.getElementById("inputImage").value = "";
 }
 
+
 function prepareAddCategoryModal() {
     document.getElementById("modalTitle").textContent = "Thêm danh mục";
     document.getElementById("inputName").value = "";
 }
 
-// Edit product function
+
 async function editProduct(id) {
-    chosenProduct = currentProducts.find((p) => p.id === id);
-    if (!chosenProduct) {
+    state.chosenProduct = state.products.find((p) => p.id === id);
+    if (!state.chosenProduct) {
         showToast("⚠️ Không tìm thấy mặt hàng");
         return;
     }
 
-    console.log("Chosen product for editing:", chosenProduct);
-
     try {
         document.getElementById("modalTitle").textContent = "Chỉnh sửa mặt hàng";
         document.getElementById("productId").value = id;
-        document.getElementById("inputName").value = chosenProduct.name;
-        document.getElementById("categorySelect").value = chosenProduct.Category?.name || "";
-        document.getElementById("inputPrice").value = chosenProduct.price || "";
-        document.getElementById("inputCost").value = chosenProduct.cost || "";
-        document.getElementById("inputImage").value = chosenProduct.image || "";
+        document.getElementById("inputName").value = state.chosenProduct.name;
+        document.getElementById("categorySelect").value = state.chosenProduct.Category?.name || "";
+        document.getElementById("inputPrice").value = state.chosenProduct.price || "";
+        document.getElementById("inputCost").value = state.chosenProduct.cost || "";
+        document.getElementById("inputImage").value = state.chosenProduct.image || "";
     } catch (error) {
         console.error("Error preparing edit form:", error);
         showToast("⚠️ Không thể chỉnh sửa mặt hàng này");
@@ -306,64 +284,6 @@ async function editProduct(id) {
 }
 
 
-// Archive / Unarchive product function
-function prepareArchiveModal(id) {
-    const modalTitle = document.getElementById('archiveModalTitle');
-    const modalIcon = document.getElementById('archiveModalIcon');
-    const confirmBtn = document.getElementById('confirmArchiveBtn');
-    
-    document.getElementById('archiveProductId').value = id;
-    const product = currentProducts.find((p) => p.id === id);
-    document.getElementById('archiveProductNameDisplay').innerText = product?.name || "";
-
-    if (currentIsActive) {
-        modalTitle.innerText = "Lưu vào kho mặt hàng?";
-        modalIcon.className = "bi bi-archive text-warning fs-1 d-block mb-3";
-        confirmBtn.className = "btn btn-warning fw-bold";
-        confirmBtn.innerHTML = '<i class="bi bi-archive me-1"></i> Lưu vào kho';
-    } else {
-        modalTitle.innerText = "Khôi phục mặt hàng này?";
-        modalIcon.className = "bi bi-arrow-counterclockwise text-primary fs-1 d-block mb-3";
-        confirmBtn.className = "btn btn-primary fw-bold";
-        confirmBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i> Khôi phục';
-    }
-    
-    const modalElem = document.getElementById('archiveModal');
-    bootstrap.Modal.getOrCreateInstance(modalElem).show();
-}
-
-async function handleArchiveToggle() {
-    const id = document.getElementById("archiveProductId").value;
-    console.log(`Handling ${currentIsActive ? "archive" : "unarchive"} for product ID:`, id);
-    const action = currentIsActive ? 'archive' : 'unarchive';
-    const successMsg = currentIsActive ? "✓ Đã lưu vào kho" : "✓ Đã khôi phục mặt hàng";
-
-    try {
-        const res = await fetch(`/api/v1/products/${action}/${id}`, {
-            method: "POST",
-        });
-        
-        const result = await res.json();
-        
-        if (result.success) {
-            showToast(successMsg);
-            // Always hide the SAME modal ID
-            const modalElem = document.getElementById("archiveModal");
-            bootstrap.Modal.getInstance(modalElem).hide();
-            
-            // Refresh table
-            asyncRenderTable(currentIsActive);
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        console.error(`Error during ${action}:`, error);
-        showToast(`⚠️ Thao tác thất bại! Lý do: ${error.message || "Lỗi kết nối"}`);
-    }
-}
-
-
-// Edit product api
 async function submitProduct() {
     const id = document.getElementById("productId").value;
     const productName = document.getElementById("inputName").value.trim();
@@ -389,9 +309,7 @@ async function submitProduct() {
     try {
         const response = await fetch(`/api/v1/products/edit/${id}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
@@ -400,80 +318,116 @@ async function submitProduct() {
         if (result.success) {
             showToast("✓ Đã cập nhật mặt hàng");
             bootstrap.Modal.getInstance(document.getElementById("productModal")).hide();
-            asyncRenderTable(currentIsActive);
+            asyncRenderTable(state.isActive);
         } else {
             showToast("⚠️ Cập nhật thất bại. Lý do: " + (result.message || "Đã có lỗi xảy ra"));
         }
     } catch (error) {
         console.error("Error saving product:", error);
         showToast("⚠️ Lưu thất bại");
-        return;
     }
-    asyncRenderTable();
-};
+}
 
-// Delete
+
+// ARCHIVE/UNARCHIVE OPERATIONS
+function prepareArchiveModal(id) {
+    const modalTitle = document.getElementById('archiveModalTitle');
+    const modalIcon = document.getElementById('archiveModalIcon');
+    const confirmBtn = document.getElementById('confirmArchiveBtn');
+    
+    document.getElementById('archiveProductId').value = id;
+    const product = state.products.find((p) => p.id === id);
+    document.getElementById('archiveProductNameDisplay').innerText = product?.name || "";
+
+    if (state.isActive) {
+        modalTitle.innerText = "Lưu vào kho mặt hàng?";
+        modalIcon.className = "bi bi-archive text-warning fs-1 d-block mb-3";
+        confirmBtn.className = "btn btn-warning fw-bold";
+        confirmBtn.innerHTML = '<i class="bi bi-archive me-1"></i> Lưu vào kho';
+    } else {
+        modalTitle.innerText = "Khôi phục mặt hàng này?";
+        modalIcon.className = "bi bi-arrow-counterclockwise text-primary fs-1 d-block mb-3";
+        confirmBtn.className = "btn btn-primary fw-bold";
+        confirmBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i> Khôi phục';
+    }
+    
+    const modalElem = document.getElementById('archiveModal');
+    bootstrap.Modal.getOrCreateInstance(modalElem).show();
+}
+
+
+async function handleArchiveToggle() {
+    const id = document.getElementById("archiveProductId").value;
+    const action = state.isActive ? 'archive' : 'unarchive';
+    const successMsg = state.isActive ? "✓ Đã lưu vào kho" : "✓ Đã khôi phục mặt hàng";
+
+    try {
+        const res = await fetch(`/api/v1/products/${action}/${id}`, { method: "POST" });
+        const result = await res.json();
+        
+        if (result.success) {
+            showToast(successMsg);
+            const modalElem = document.getElementById("archiveModal");
+            bootstrap.Modal.getInstance(modalElem).hide();
+            asyncRenderTable(state.isActive);
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error(`Error during ${action}:`, error);
+        showToast(`⚠️ Thao tác thất bại! Lý do: ${error.message || "Lỗi kết nối"}`);
+    }
+}
+
+
+// DELETE OPERATIONS
 function promptDelete(id) {
-    deleteTargetId = id;
-    const p = products.find((p) => p.id === id);
+    state.deleteTargetId = id;
+    const p = state.products.find((p) => p.id === id);
     document.getElementById("deleteProductName").textContent = p ? p.name : "";
     new bootstrap.Modal(document.getElementById("deleteModal")).show();
-};
+}
 
-// Bulk archive
-// UI check all
+
+// BULK OPERATIONS (Check All, Delete)
 document.getElementById('checkAll').addEventListener('change', function () {
     const isChecked = this.checked;
     document.querySelectorAll('.row-check').forEach(cb => {
         cb.checked = isChecked;
     });
-    
-    updateBulkBar(); 
+    updateBulkBar();
 });
 
-
-function showBulkArchive() {
-    const ids = [...document.querySelectorAll(".row-check:checked")].map((cb) => Number(cb.dataset.id));
-    // Implement bulk archive logic later
-}
 
 function updateBulkBar() {
     const checked = document.querySelectorAll(".row-check:checked");
     document.getElementById("selectedCount").textContent = checked.length;
-    document
-        .getElementById("bulkBar")
-        .classList.toggle("d-none", checked.length === 0);
+    document.getElementById("bulkBar").classList.toggle("d-none", checked.length === 0);
 }
 
+
 document.getElementById("bulkDeleteBtn").addEventListener("click", () => {
-    const ids = [...document.querySelectorAll(".row-check:checked")].map((cb) =>
-        Number(cb.dataset.id),
-    );
-    products = products.filter((p) => !ids.includes(p.id));
+    const ids = [...document.querySelectorAll(".row-check:checked")].map((cb) => Number(cb.dataset.id));
+    state.products = state.products.filter((p) => !ids.includes(p.id));
     document.getElementById("checkAll").checked = false;
     document.getElementById("bulkBar").classList.add("d-none");
     renderTable();
     showToast(`✓ Đã xóa ${ids.length} mặt hàng`);
 });
 
-// Search
-// A simple debounce helper to prevent excessive rendering
-let searchTimeout;
 
+// SEARCH FUNCTIONALITY
 function filterTable() {
     clearTimeout(searchTimeout);
 
     searchTimeout = setTimeout(() => {
         const query = document.getElementById("searchInput").value.toLowerCase().trim();
         
-        // If query is empty, use the full list, otherwise filter
         const filtered = !query 
-            ? [...currentProducts] 
-            : currentProducts.filter(p => {
+            ? [...state.products] 
+            : state.products.filter(p => {
                 const nameMatch = p.name.toLowerCase().includes(query);
-                // Ensure we check the same nested property as renderTable
                 const categoryMatch = p.Category?.name?.toLowerCase().includes(query);
-                
                 return nameMatch || categoryMatch;
             });
 
@@ -483,11 +437,13 @@ function filterTable() {
 
 document.getElementById("searchInput").addEventListener("input", filterTable);
 
-// ── Toast ────────────────────────────────────────────────
+
+// UI UTILITIES
 function showToast(msg, time = 2000) {
     document.getElementById("toastMsg").textContent = msg;
     new bootstrap.Toast(document.getElementById("toast"), { delay: time }).show();
 }
 
-// Init
+
+// INIT
 asyncRenderTable();
