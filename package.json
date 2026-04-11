@@ -19,7 +19,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "argon2": "^0.44.0",
     "express": "^5.2.1",
     "express-handlebars": "^8.0.6",
     "express-session": "^1.19.0",

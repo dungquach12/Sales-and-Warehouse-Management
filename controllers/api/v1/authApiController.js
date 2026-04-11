@@ -1,6 +1,6 @@
 const controller = {};
 const { User } = require("../../../models");
-const bcrypt = require("bcrypt");
+const argon2 = require("argon2");
 const { Op } = require("sequelize");
 
 controller.login = async (req, res) => {
@@ -26,7 +26,7 @@ controller.login = async (req, res) => {
                 )
         };
 
-        if (bcrypt.compareSync(password, user.password_hash) == false) {
+        if (!(await argon2.verify(user.password_hash, password))) {
             return res
                 .status(401)
                 .json(

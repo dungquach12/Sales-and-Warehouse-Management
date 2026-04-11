@@ -1,5 +1,5 @@
 'use strict';
-const bcrypt = require('bcrypt');
+const argon2 = require("argon2");
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -9,7 +9,7 @@ module.exports = {
         username: 'admin',
         name: 'Nguyễn Thị Nhung',
         email: 'admin@easymanage.com',
-        password_hash: await bcrypt.hash('123456', 10),
+        password_hash: await argon2.hash('123456'),
         role: 'admin',
         created_at: new Date(),
         updated_at: new Date(),
@@ -19,7 +19,7 @@ module.exports = {
         username: 'staff1',
         name: 'Quách Tấn Dũng',
         email: 'staff1@easymanage.com',
-        password_hash: await bcrypt.hash('123456', 10),
+        password_hash: await argon2.hash('123456'),
         role: 'staff',
         created_at: new Date(),
         updated_at: new Date(),
