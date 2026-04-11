@@ -4,10 +4,7 @@ const router = express.Router();
 const controller = require('../controllers/authController');
 
 router.get('/', (req, res) => {
-    if (req.session.userId)
-        res.redirect("/report")
-    else 
-        res.redirect("/login")
+    res.redirect("/report")
 });
 
 router.get('/login', controller.showLogin);

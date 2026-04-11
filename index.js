@@ -1,11 +1,15 @@
+require("dotenv").config();
+
 const path = require("path");
 const express = require("express");
 const expressHbs = require("express-handlebars");
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-const session = require("express-session");
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+const { requireAuth, requireAuthApi } = require("./utils/checkAuth");
 
 // Configure static web folders
 app.use(express.static(__dirname + "/html"));
@@ -47,40 +51,30 @@ app.engine('hbs', expressHbs.engine({
 
 app.set("view engine", "hbs");
 
-// Middleware to parse request bodies
+// --- GLOBAL MIDDLEWARE ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Session config
-app.use(session({
-  secret: process.env.SESSION_SECRET || "my secret",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 20 * 60 * 1000, // 20 minutes
-    httpOnly: true,
-    secret: false, // True if use https
-  }
-}))
-
-// Make session available to templates
 app.use((req, res, next) => {
-  res.locals.session = req.session;
+  res.setHeader('Cache-Control', 'no-store');
   next();
 });
 
-// Pages routes
+
+// --- PUBLIC ROUTES ---
 app.use("/", require("./routes/authRoutes"));
-// ---------------------------------
-app.use("/report", require("./routes/reportRoutes"));
-
-app.use("/products", require("./routes/productRoutes"));
-
-// API routes
 app.use('/api/v1/auth', require('./routes/api/v1/authApiRoutes'));
-app.use('/api/v1/products', require('./routes/api/v1/productApiRoutes'));
 
-app.get('/categories', (req, res) => {
+
+// --- PROTECTED PAGE ROUTES (SSR / HTML) ---
+app.use("/report", requireAuth,require("./routes/reportRoutes"));
+app.use("/products", requireAuth, require("./routes/productRoutes"));
+
+
+// --- PROTECTED API ROUTES (JSON) ---
+app.use('/api/v1/products', requireAuthApi, require('./routes/api/v1/productApiRoutes'));
+
+
+app.get('/categories', requireAuthApi,(req, res) => {
   res.render('wip', {
     title: 'Mẫu mã',
     activeMenu: 'categories',
@@ -88,7 +82,7 @@ app.get('/categories', (req, res) => {
   });
 });
 
-app.get('/sales', (req, res) => {
+app.get('/sales', requireAuthApi, (req, res) => {
   res.render('sales', {
     title: 'Bán hàng',
     activeMenu: 'sales',
@@ -96,7 +90,7 @@ app.get('/sales', (req, res) => {
   });
 });
 
-app.get('/notifications', (req, res) => {
+app.get('/notifications', requireAuthApi, (req, res) => {
   res.render('wip', {
     title: 'Thông báo',
     activeMenu: 'notifications',
@@ -105,7 +99,7 @@ app.get('/notifications', (req, res) => {
 });
 
 
-app.get('/menu', (req, res) => {
+app.get('/menu', requireAuthApi, (req, res) => {
   res.render('wip', {
     title: 'Menu',
     activeMenu: 'menu',

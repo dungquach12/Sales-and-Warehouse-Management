@@ -1,7 +1,12 @@
 const controller = {};
-const { User } = require("../../../models");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
+const { User } = require("../../../models");
 const { Op } = require("sequelize");
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES = '7d';
 
 controller.login = async (req, res) => {
     const { usernameOrEmail, password } = req.body;
@@ -15,7 +20,7 @@ controller.login = async (req, res) => {
             }
         })
 
-        if (!user) {
+        if (!user || !(await argon2.verify(user.password_hash, password))) {
             return res
                 .status(401)
                 .json(
@@ -26,51 +31,49 @@ controller.login = async (req, res) => {
                 )
         };
 
-        if (!(await argon2.verify(user.password_hash, password))) {
-            return res
-                .status(401)
-                .json(
-                    { 
-                        success: false, 
-                        message: 'Invalid credentials' 
-                    }
-                )
-        };
-
-
-        req.session.userId = user.id;
-        req.session.username = user.username;
-        res.json(
-            { 
-                success: true, 
-                message: "Login successful",
-                redirect: '/report'
-            }
+        // create token
+        const token = jwt.sign(
+            { id: user.id, username: user.username, role: user.role },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRES }
         );
+
+        res.cookie('token', token, {
+            httpOnly: true,   
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            user: {
+                username: user.username,
+                role: user.role
+            }
+        });
 
     } catch (error) {
         console.log("Error:", error);
-        res.render("authenticate/auth-login", {
-            layout: "auth-layout",
-            title: "Đăng nhập",
-            message: "Something went wrong"
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong during login"
         });
     }
 }
 
 controller.logout = (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.log("Logout error", err);
-            return res.redirect('/report');
-        }
-        res.clearCookie('connect.sid');
-        
-        res.json({
-            success: true,
-            message: "Logout successful",
-            redirect: '/login'
-        });
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+
+    res.status(200).json({
+        success: true,
+        message: "Logged out",
+        redirect: '/login'
     });
 };
 

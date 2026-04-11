@@ -8,9 +8,6 @@ controller.showReport = async (req, res) => {
             title: 'Tổng quan',
             activeMenu: 'report',
             pageCSS: 'report.css',
-            user: {
-                username: req.session.username
-            }
         });
     } catch (error) {
         console.error("Error loading report:", error);

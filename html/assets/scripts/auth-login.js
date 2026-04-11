@@ -35,7 +35,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         const result = await res.json();
 
         if (result.success) {
-            window.location.href = result.redirect;
+            window.location.href = '/report';
         } else {
             errorMsg.textContent = result.message;
             errorMsg.classList.remove('d-none');

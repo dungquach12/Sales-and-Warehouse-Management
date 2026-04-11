@@ -4,18 +4,16 @@ const { where, Op } = require("sequelize");
 
 controller.showProduct = async (req, res) => {
     try {
-            res.render('products', {
-                title: 'Sản phẩm',
-                activeMenu: 'products',
-                activeParent: 'productManage',
-                pageCSS: 'products.css',
-                user: {
-                    username: req.session.username
-                },
+        res.render('products', {
+            title: 'Sản phẩm',
+            activeMenu: 'products',
+            activeParent: 'productManage',
+            pageCSS: 'products.css',
         });
     } catch (error) {
         console.error("Error loading product page:", error);
-        res.status(500).render("error", { message: "Could not load product page" });
+        // Fallback if 'error' view still doesn't exist
+        res.status(500).send("Internal Server Error: Could not load products.");
     }
 };
 

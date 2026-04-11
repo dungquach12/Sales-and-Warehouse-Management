@@ -1,15 +1,13 @@
 const router = require('express').Router();
 const controller = require("../../../controllers/api/v1/productApiController");
 
-const { checkAuth } = require("../../../utils/checkAuth")
-
-router.get("/", checkAuth, controller.getAllActiveProducts);
-router.get("/inactive", checkAuth, controller.getAllInactiveProducts);
-// router.get('/check-name', checkAuth, controller.checkName);
-router.post("/create", checkAuth, controller.createProduct);
-router.post("/edit/:id", checkAuth, controller.editProduct);
-router.post("/archive/:id", checkAuth, controller.archiveProduct);
-router.post("/unarchive/:id", checkAuth, controller.unarchiveProduct);
+router.get("/", controller.getAllActiveProducts);
+router.get("/inactive", controller.getAllInactiveProducts);
+// router.get('/check-name', controller.checkName);
+router.post("/create", controller.createProduct);
+router.post("/edit/:id", controller.editProduct);
+router.post("/archive/:id", controller.archiveProduct);
+router.post("/unarchive/:id", controller.unarchiveProduct);
 // router.delete("/:id", checkAuth, controller.deleteProduct);
 
 module.exports = router;
