@@ -26,7 +26,7 @@
           </div>
           <div>
             <label class="form-label fw-semibold">Danh mục</label>
-            <select name="category" id="categorySelect" class="form-control">
+            <select name="category" id="categorySelect" class="form-control" category-id = "">
               <option value="" disabled selected>-- Chọn danh mục --</option>
             </select>
           </div>
@@ -111,6 +111,28 @@
   </div>
 </div>
 
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <i class="bi bi-exclamation-triangle text-danger fs-1 d-block mb-3"></i>
+        <h6 class="fw-bold">Xóa mặt hàng?</h6>
+        <input type="hidden" id="deleteProductId" />
+        <p class="text-muted small mb-0" id="deleteProductName"></p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-danger fw-bold" id="confirmDeleteBtn" onclick="handleDeleteProduct()">
+            Xác nhận
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Page -->
 <main class="page-wrapper">
 
@@ -136,13 +158,11 @@
           </span>
           <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Tìm kiếm..." />
         </div>
-        <button class="btn btn-success fw-bold" id="addProductBtn" data-bs-toggle="modal" data-bs-target="#productModal"
-          onclick="prepareAddProductModal()">
+        <button class="btn btn-success fw-bold" id="addProductBtn" onclick="openAddProductModal()">
           <i class="bi bi-plus-circle-fill me-1"></i>
           <span>Thêm mặt hàng</span>
         </button>
-        <button class="btn btn-success fw-bold" id="addCategoryBtn" data-bs-toggle="modal"
-          data-bs-target="#categoryModal" onclick="prepareAddCategoryModal()">
+        <button class="btn btn-success fw-bold" id="addCategoryBtn" data-bs-toggle="modal" onclick="openAddCategoryModal()">
           <i class="bi bi-plus-circle-fill me-1"></i>
           <span>Thêm danh mục</span>
         </button>
@@ -189,7 +209,7 @@
     <div class="card border-danger d-none" id="bulkBar">
       <div class="card-body py-2 d-flex justify-content-between align-items-center">
         <span class="text-danger fw-bold small"><span id="selectedCount">0</span> mặt hàng được chọn</span>
-        <button class="btn btn-danger btn-sm fw-bold" id="bulkDeleteBtn">
+        <button class="btn btn-danger btn-sm fw-bold" id="bulkDeleteBtn" onclick="openBulkDeleteModal()">
           <i class="bi bi-trash3 me-1"></i>Xóa đã chọn
         </button>
       </div>

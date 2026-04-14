@@ -10,10 +10,10 @@ controller.getAllActiveProducts = async (req, res) => {
                 is_active: true
             }
         });
-        res.json({ success: true, data: products });
+        return res.json({ success: true, data: products });
     } catch (error) {
         console.log("Error:", error);
-        res.status(500).json({ success: false, message: "Something went wrong" });
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
 
@@ -25,12 +25,22 @@ controller.getAllInactiveProducts = async (req, res) => {
                 is_active: false
             }
         });
-        res.json({ success: true, data: products });
+        return res.json({ success: true, data: products });
     } catch (error) {
         console.log("Error:", error);
-        res.status(500).json({ success: false, message: "Something went wrong" });
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
+
+controller.getAllActiveCategories = async (req, res) => {
+    try {
+        const categories = await Category.findAll();
+        return res.json({ success: true, data: categories });
+    } catch (error) {
+        console.log("Error:", error);
+        return res.status(500).json({ success: false, message: "Something went wrong" });
+    }
+}
 
 controller.checkName = async (req, res) => {
   try {
@@ -43,35 +53,72 @@ controller.checkName = async (req, res) => {
 
     if (!product) return res.json({ exists: false });
     
-    res.json({
+    return res.json({
       exists: true,
       is_active: product.is_active
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Check failed' });
+    return res.status(500).json({ success: false, message: 'Check failed' });
   }
 };
 
 controller.createProduct = async (req, res) => {
-    const { name, price, cost, categoryId } = req.body;
+    const { name, category_id, price, cost, image } = req.body;
     try {
-        const newProduct = await Product.create({ name, price, cost, categoryId });
-        res.json({ success: true, data: newProduct });
+        const newProduct = await Product.create({ name, category_id, price, cost, image, is_active: true });
+        return res.json({ success: true, data: newProduct });
     } catch (error) {
         console.log("Error:", error);
-        res.status(500).json({ success: false, message: "Something went wrong" });
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
+
+controller.editProduct = async (req, res) => {   
+    const { id } = req.params;
+    const { name, price, cost, category_id, image } = req.body;
+
+    try {
+        const product = await Product.findByPk(id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Mặt hàng không tồn tại" });
+        }
+
+        // Validate category if the user actually changed it/provided it
+        let finalCategoryId = product.categoryId; 
+        if (category_id !== undefined && category_id !== null && category_id !== "") {
+            const foundCategory = await Category.findByPk(category_id);
+            if (!foundCategory) {
+                return res.status(400).json({ success: false, message: "Danh mục không hợp lệ" });
+            }
+            finalCategoryId = foundCategory.id;
+        }
+
+        await product.update({ 
+            name: name?.trim() || product.name, 
+            price: (price !== undefined && price !== null) ? price : product.price, 
+            cost: (cost !== undefined && cost !== null) ? cost : product.cost, 
+            category_id: finalCategoryId,
+            image: image || product.image 
+        });
+
+        return res.json({ success: true, message: "Cập nhật thành công" });
+    } catch (error) {
+        console.error("Update Error:", error);
+        return res.status(500).json({ success: false, message: "Lỗi hệ thống khi cập nhật" });
+    }
+};
+
+
 
 controller.archiveProduct = async (req, res) => {
     console.log("Archive product request received");
     const { id } = req.params;
     try {
         await Product.update({ is_active: false }, { where: { id } });
-        res.json({ success: true, message: "Product archived" });
+        return res.json({ success: true, message: "Product archived" });
     } catch (error) {
         console.log("Error:", error);
-        res.status(500).json({ success: false, message: "Something went wrong" });
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
 
@@ -79,45 +126,25 @@ controller.unarchiveProduct = async (req, res) => {
     const { id } = req.params;
     try {
         await Product.update({ is_active: true }, { where: { id } });
-        res.json({ success: true, message: "Product restored" });
+        return res.json({ success: true, message: "Product restored" });
     } catch (error) {
         console.log("Error:", error);
-        res.status(500).json({ success: false, message: "Something went wrong" });
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
 
-controller.deleteProduct = async (req, res) => {
-    const { id } = req.params;
-    try {
-        await Product.destroy({ where: { id }, force: true });
-        res.json({ success: true, message: "Product deleted" });
-    } catch (error) {
-        console.log("Error:", error);
-        res.status(500).json({ success: false, message: "Something went wrong" });
+controller.bulkDeleteProducts = async (req, res) => {
+    const { ids } = req.body; // Expecting an array of IDs
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ success: false, message: "No product IDs provided" });
     }
-};
-
-controller.editProduct = async (req, res) => {   
-    console.log("Edit product request received");
-    const { id } = req.params;
-    const { name, price, cost, category, image } = req.body;
-
-    let categoryId = null;
-    if (category) {
-        const foundCategory = await Category.findOne({ where: { name: category } });
-        if (foundCategory) {
-            categoryId = foundCategory.id;
-        } else {
-            return res.status(400).json({ success: false, message: "Category not found" });
-        }  
-    } 
 
     try {
-        await Product.update({ name, price, cost, categoryId, image }, { where: { id } });
-        res.json({ success: true, message: "Product updated" });
+        await Product.destroy({ where: { id: { [Op.in]: ids } }, force: true });
+        return res.json({ success: true, message: "Products deleted" });
     } catch (error) {
         console.log("Error:", error);
-        res.status(500).json({ success: false, message: "Something went wrong" });
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
 };
 
