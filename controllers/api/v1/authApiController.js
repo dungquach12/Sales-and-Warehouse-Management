@@ -1,5 +1,4 @@
 const controller = {};
-require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
 const { User } = require("../../../models");

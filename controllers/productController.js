@@ -1,6 +1,4 @@
 const controller = {};
-const { Product, Category } = require("../models");
-const { where, Op } = require("sequelize");
 
 controller.showProduct = async (req, res) => {
     try {

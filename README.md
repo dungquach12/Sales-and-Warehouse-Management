@@ -15,8 +15,7 @@ A simple web app for managing products, customers, orders and sales reporting. B
 - **Backend**: Node.js, Express.js
 - **Frontend**: Handlebars templates with vanilla JavaScript
 - **Database**: PostgreSQL + Sequelize ORM
-- **Auth**: bcrypt for password hashing, session-based authentication
-- **Validation**: express-validator for input validation
+- **Auth**: JWT-based login with argon2 password hashing
 
 ## Project Structure
 

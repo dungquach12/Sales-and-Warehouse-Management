@@ -1,6 +1,4 @@
 const controller = {};
-const models = require("../models");
-const { where, Op } = require("sequelize");
 
 controller.showReport = async (req, res) => {
     try {
