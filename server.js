@@ -50,6 +50,7 @@ app.engine('hbs', expressHbs.engine({
 }));
 
 app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "views"));
 
 // --- GLOBAL MIDDLEWARE ---
 app.use(express.json());
