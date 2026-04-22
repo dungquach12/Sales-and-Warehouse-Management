@@ -107,6 +107,8 @@ app.get('/menu', requireAuthApi, (req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running! Open http://localhost:${PORT} in your browser.`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(3000, () => console.log('Server running!'));
+}
+
+module.exports = app;
