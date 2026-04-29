@@ -1,40 +1,49 @@
-.stat-card {
-  border: none;
-  border-radius: 12px;
-  transition: transform 0.2s;
-}
+/* ── Mobile responsive fixes ── */
 
-.stat-card:hover {
-  transform: translateY(-2px);
-}
+/* Stack top bar vertically on small screens */
+@media (max-width: 768px) {
 
-.page-wrapper {
-display: flex;
-flex-direction: column;
-height: 100%;
-}
+    /* Search takes full width */
+    .input-group[style*="max-width:240px"] {
+        max-width: 100% !important;
+        flex: 1;
+    }
 
-.sticky-section {
-flex-shrink: 0;
-}
+    /* Hide button text, show icon only */
+    #addProductBtn span,
+    #addCategoryBtn span {
+        display: none;
+    }
 
-.table-wrapper {
-flex: 1;
-overflow-y: auto;
-min-height: 0;
-}
+    /* Hide cost & profit columns on mobile */
+    .col-cost,
+    .col-profit,
+    th.col-cost,
+    th.col-profit,
+    td:nth-child(5),
+    td:nth-child(6),
+    th:nth-child(5),
+    th:nth-child(6) {
+        display: none;
+    }
 
-.table-wrapper table {
-margin-bottom: 0;
-}
+    /* Give name column more room */
+    .col-name { width: 45%; }
+    .col-cat  { width: 25%; }
+    .col-price { width: 20%; }
+    .col-action { width: 60px; }
 
-.col-check  { width: 44px; }
-.col-name   { width: 30%; }
-.col-cat    { width: 15%; }
-.col-price  { width: 13%; }
-.col-cost   { width: 13%; }
-.col-profit { width: 13%; }
-.col-action { width: 100px; }
+    /* Tighten table padding */
+    .table td, .table th {
+        padding: 0.5rem 0.25rem;
+    }
+
+    /* Bulk bar text shorter */
+    #bulkBar .card-body {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
 
 .product-status-btn {
   background-color: white;

@@ -1,4 +1,6 @@
 // Global state management for product page
+let isInitialLoad = true;
+
 const state = {
   isActive: true,
   products: [],
@@ -17,8 +19,7 @@ document.getElementById("statusFilter").addEventListener("click", function (e) {
     const clickedBtn = e.target.closest(
         ".product-status-btn, .product-status-btn-disabled",
     );
-    if (!clickedBtn || clickedBtn.classList.contains("product-status-btn"))
-        return;
+    if (!clickedBtn || clickedBtn.classList.contains("product-status-btn")) return;
 
     state.isActive = clickedBtn.id === "activedProduct";
 
@@ -39,10 +40,10 @@ document.getElementById("statusFilter").addEventListener("click", function (e) {
 
 // Autocomplete & Name validation
 async function setupCategoryAndNameAutocomplete(products) {
-    const categorySelect = document.getElementById("categorySelect");
-    const nameList = document.getElementById("nameList");
+    try {   
+        const categorySelect = document.getElementById("categorySelect");
+        const nameList = document.getElementById("nameList");
 
-    try {
         // 1. Wait for the API response
         const res = await fetch(`/api/v1/products/category`);
         const result = await res.json();
@@ -55,12 +56,7 @@ async function setupCategoryAndNameAutocomplete(products) {
         }
 
         // 2. Create the Map
-        const categoryMap = new Map();
-        cats.forEach(c => {
-            if (!categoryMap.has(c.id)) {
-                categoryMap.set(c.id, c.name);
-            }
-        });
+        const categoryMap = new Map(cats.map(c => [c.id, c.name]));
 
         // 3. Render Category Options
         let categoryHtml = `<option value="" disabled selected>-- Chọn danh mục --</option>`;
@@ -84,7 +80,7 @@ async function setupCategoryAndNameAutocomplete(products) {
     }
 }
 
-
+// Check name for add/edit product
 document.getElementById("inputName").addEventListener("input", async function () {
     const name = this.value.trim();
     const saveBtn = document.getElementById("saveBtn");
@@ -133,21 +129,47 @@ document.getElementById("inputName").addEventListener("input", async function ()
 });
 
 
+// ----------------------------------------------
+// Auto change product display from table to card when screen get smaller
+const mobileQuery = window.matchMedia("(max-width: 768px)");
+
+async function getPreferredView(e, filteredProducts = null) {
+    if (isInitialLoad && state.products.length === 0) {
+        await asyncRenderTable();
+        isInitialLoad = false;
+        return;
+    }
+
+    if (e.matches) {
+        renderCards(filteredProducts);
+    } else {
+        renderTable(filteredProducts);
+    }
+}
+
+mobileQuery.addEventListener("change", getPreferredView);
+getPreferredView(mobileQuery);
+
+// -----------------------------------------------
 // Table rendering & Sorting
 async function asyncRenderTable(is_active = true) {
     if (renderAbortController) {
         renderAbortController.abort();
+        renderAbortController = null;
     }
     renderAbortController = new AbortController();
 
     try {
         const res = await fetch(`/api/v1/products/${is_active ? "" : "inactive"}`, { signal: renderAbortController.signal });
         const result = await res.json();
-        if (!result.success) return;
+        if (!result.success) {
+            showToast(result.message || "Không thể tải dữ liệu");
+            return;
+        }
 
         state.products = result.data;
         state.isActive = is_active;
-        renderTable();
+        getPreferredView(mobileQuery);
     } catch (error) {
         if (error.name === "AbortError") {
             console.log("Previous render aborted");
@@ -230,6 +252,55 @@ function renderTable(filteredProducts = null) {
     updateStats(products);
 }
 
+// For smaller screens, render cards instead of table rows (optional enhancement)
+function renderCards(filteredProducts = null) {
+    const products = filteredProducts || [...state.products];
+
+    const container = document.getElementById("productContainer");
+
+    // Handle empty state
+    if (products.length === 0) {
+        container.innerHTML = `<div class="text-center text-muted py-5">
+            <i class="bi bi-box-seam fs-2 d-block mb-2"></i> Không tìm thấy mặt hàng nào
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = products.map((p) => {
+        const price = Number(p.price);
+        const cost = Number(p.cost) || 0;
+        const profit = cost ? Math.round(((price - cost) / price) * 100) : null;
+
+        return `
+            <div class="card mb-3" data-id="${p.id}">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <span style="font-size:1.5rem;">${p.image || "🍵"}</span>
+                        <div>
+                            <h5 class="card-title mb-1">${p.name}</h5>
+                            <p class="card-text mb-0"><span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">${p.Category?.name || "—"}</span></p>
+                        </div>
+                    </div>
+                    <p class="card-text mb-1 fw-bold text-warning">Giá: ${price.toLocaleString("vi-VN")}đ</p>
+                    <p class="card-text mb-1 text-muted">Chi phí: ${cost ? cost.toLocaleString("vi-VN") + "đ" : "—"}</p>
+                    <p class="card-text mb-2">
+                        ${profit !== null
+                ? `<span class="badge ${profit >= 40 ? "bg-success text-success" : profit >= 20 ? "bg-warning text-warning" : "bg-danger text-danger"} bg-opacity-10 fw-normal">${profit}%</span>`
+                : "—"}
+                    </p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditProductModal('${p.id}')" title="Chỉnh sửa">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="openArchiveModal('${p.id}')" title="${state.isActive ? 'Lưu vào kho' : 'Khôi phục mặt hàng'}">
+                            <i class="bi ${state.isActive ? 'bi-archive' : 'bi-arrow-counterclockwise'}"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+    }).join("");
+}   
+
 
 function handleSort(classSortBy) {
     let sortBy = classSortBy === "category" ? "Category.name" : classSortBy;
@@ -249,8 +320,9 @@ function handleSort(classSortBy) {
     const icon = document.getElementById(btnId).querySelector("i");
     icon.className = state.sortArc ? "bi bi-sort-up" : "bi bi-sort-down";
 
-    renderTable();
+    getPreferredView(mobileQuery);
 }
+
 
 document.getElementById("nameSortBtn").addEventListener("click", () => handleSort("name"));
 document.getElementById("categorySortBtn").addEventListener("click", () => handleSort("category"));
@@ -315,12 +387,7 @@ async function openEditProductModal(id) {
     document.getElementById("productId").value = id;
     document.getElementById("inputName").value = state.chosenProduct.name;
     
-    const categoryOptionName = state.chosenProduct.Category?.name || "";
-    document.getElementById("categorySelect").querySelectorAll("option").forEach(option => {
-        if (option.textContent === categoryOptionName) {
-            option.selected = true;
-        }
-    });
+    document.getElementById("categorySelect").value = state.chosenProduct.Category?.id || "";
     
     document.getElementById("inputPrice").value = state.chosenProduct.price || "";
     document.getElementById("inputCost").value = state.chosenProduct.cost || "";
@@ -481,6 +548,7 @@ async function handleDeleteProduct() {
 }
 
 
+// -----------------------------------------------------
 // SEARCH FUNCTIONALITY
 function filterTable() {
     clearTimeout(searchTimeout);
@@ -496,13 +564,14 @@ function filterTable() {
                 return nameMatch || categoryMatch;
             });
 
-        renderTable(filtered);
+        getPreferredView(mobileQuery, filtered);
     }, 250);
 }
 
 document.getElementById("searchInput").addEventListener("input", filterTable);
 
 
+// -----------------------------------------------------
 // UI UTILITIES
 function showToast(msg, time = 2000) {
     document.getElementById("toastMsg").textContent = msg;
@@ -510,6 +579,7 @@ function showToast(msg, time = 2000) {
 }
 
 
+// -----------------------------------------------------
 // INIT
 asyncRenderTable();
 document.getElementById("productTable").addEventListener("change", (e) => {

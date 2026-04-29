@@ -26,7 +26,7 @@
           </div>
           <div>
             <label class="form-label fw-semibold">Danh mục</label>
-            <select name="category" id="categorySelect" class="form-control" category-id = "">
+            <select name="category" id="categorySelect" class="form-control" category-id="">
               <option value="" disabled selected>-- Chọn danh mục --</option>
             </select>
           </div>
@@ -34,14 +34,14 @@
             <div class="col-6">
               <label class="form-label fw-semibold">Giá bán <span class="text-danger">*</span></label>
               <div class="input-group">
-                <input type="number" class="form-control" id="inputPrice" placeholder="0" min="0" step="1000"/>
+                <input type="number" class="form-control" id="inputPrice" placeholder="0" min="0" step="1000" />
                 <span class="input-group-text">đ</span>
               </div>
             </div>
             <div class="col-6">
               <label class="form-label fw-semibold">Chi phí</label>
               <div class="input-group">
-                <input type="number" class="form-control" id="inputCost" placeholder="0" min="0" step="1000"/>
+                <input type="number" class="form-control" id="inputCost" placeholder="0" min="0" step="1000" />
                 <span class="input-group-text">đ</span>
               </div>
             </div>
@@ -141,36 +141,45 @@
 
     <!-- Top bar -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <!-- Status filter stays left -->
       <div class="d-flex gap-2">
         <div class="p-0 bg-white rounded border border-dark-subtle d-flex align-items-center" id="statusFilter">
-          <button id="activedProduct" class="btn rounded-end-0 fw-bold product-status-btn">
-            <span>Còn bán</span>
-          </button>
-          <button id="inactivedProduct" class="btn rounded-start-0 fw-bold product-status-btn-disabled">
-            <span>Ngừng bán</span>
-          </button>
+          <button id="activedProduct" class="btn rounded-end-0 fw-bold product-status-btn">Còn bán</button>
+          <button id="inactivedProduct" class="btn rounded-start-0 fw-bold product-status-btn-disabled">Ngừng
+            bán</button>
         </div>
       </div>
-      <div class="d-inline-flex gap-2">
-        <div class="input-group" style="max-width:240px;">
+
+      <!-- Search + buttons grouped, wrap together on mobile -->
+      <div class="d-flex gap-2 flex-wrap flex-grow-1 justify-content-end">
+        <!-- Search -->
+        <div class="input-group" style="max-width:240px; min-width: 120px; flex:1">
           <span class="input-group-text bg-white border-end-0">
             <i class="bi bi-search text-muted"></i>
           </span>
           <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Tìm kiếm..." />
         </div>
-        <button class="btn btn-success fw-bold" id="addProductBtn" onclick="openAddProductModal()">
-          <i class="bi bi-plus-circle-fill me-1"></i>
-          <span>Thêm mặt hàng</span>
+
+        <!-- Add Product — green with plus-circle -->
+        <button class="btn btn-success fw-bold" onclick="openAddProductModal()">
+          <i class="bi bi-plus-circle-fill d-md-none"></i>
+          <span class="d-none d-md-inline">
+            <i class="bi bi-plus-circle-fill me-1"></i>Thêm mặt hàng
+          </span>
         </button>
-        <button class="btn btn-success fw-bold" id="addCategoryBtn" data-bs-toggle="modal" onclick="openAddCategoryModal()">
-          <i class="bi bi-plus-circle-fill me-1"></i>
-          <span>Thêm danh mục</span>
+
+        <!-- Add Category — blue with tag icon -->
+        <button class="btn btn-primary fw-bold" onclick="openAddCategoryModal()">
+          <i class="bi bi-tag-fill d-md-none"></i>
+          <span class="d-none d-md-inline">
+            <i class="bi bi-tag-fill me-1"></i>Thêm danh mục
+          </span>
         </button>
       </div>
     </div>
 
     <!-- Stats -->
-    <div class="row g-2">
+    <div class="row g-2 d-none d-lg-flex">
       <div class="col-6 col-md-3">
         <div class="card border-0 bg-success bg-opacity-10">
           <div class="card-body py-3 stat-card">
@@ -215,74 +224,79 @@
       </div>
     </div>
 
-    <!-- Static table header -->
-    <div class="card mb-0 border-0">
-      <div class="card-body p-0">
-        <table class="table table-borderless align-middle mb-0">
-          <thead class="table-secondary">
-            <tr>
-              <th class="ps-3 pb-3 col-check">
-                <input type="checkbox" class="form-check-input fs-5" id="checkAll"/>
-              </th>
-              <th class="col-name">
-                <span>Mặt hàng</span>
-                <button class="btn ms-auto" id="nameSortBtn">
-                  <i class="bi bi-filter"></i>
-                </button>
-              </th>
-              <th class="col-cat">
-                <span>Danh mục</span>
-                <button class="btn ms-auto" id="categorySortBtn">
-                  <i class="bi bi-filter"></i>
-                </button>
-              </th>
-              <th class="col-price">
-                <span></span>Giá bán</span>
-                <button class="btn ms-auto" id="priceSortBtn">
-                  <i class="bi bi-filter"></i>
-                </button>
-              </th>
-              <th class="col-cost">
-                <span>Chi phí</span>
-                <button class="btn ms-auto" id="costSortBtn">
-                  <i class="bi bi-filter"></i>
-                </button>
-              </th>
-              <th class="col-profit">
-                <span>Lợi nhuận</span>
-                <button class="btn ms-auto" id="profitSortBtn">
-                  <i class="bi bi-filter"></i>
-                </button>
-              </th>
-              <th class="col-action"></th>
-            </tr>
+    <!-- Desktop Table View (visible on md+) -->
+    <div class="d-none d-md-block">
+      <!-- Static table header -->
+      <div class="card mb-0 border-0">
+        <div class="card-body p-0">
+          <table class="table table-borderless align-middle mb-0">
+            <thead class="table-secondary">
+              <tr>
+                <th class="ps-3 pb-3 col-check">
+                  <input type="checkbox" class="form-check-input fs-5" id="checkAll" />
+                </th>
+                <th class="col-name">
+                  <span>Mặt hàng</span>
+                  <button class="btn ms-auto" id="nameSortBtn">
+                    <i class="bi bi-filter"></i>
+                  </button>
+                </th>
+                <th class="col-cat">
+                  <span>Danh mục</span>
+                  <button class="btn ms-auto" id="categorySortBtn">
+                    <i class="bi bi-filter"></i>
+                  </button>
+                </th>
+                <th class="col-price">
+                  <span>Giá bán</span>
+                  <button class="btn ms-auto" id="priceSortBtn">
+                    <i class="bi bi-filter"></i>
+                  </button>
+                </th>
+                <th class="col-cost">
+                  <span>Chi phí</span>
+                  <button class="btn ms-auto" id="costSortBtn">
+                    <i class="bi bi-filter"></i>
+                  </button>
+                </th>
+                <th class="col-profit">
+                  <span>Lợi nhuận</span>
+                  <button class="btn ms-auto" id="profitSortBtn">
+                    <i class="bi bi-filter"></i>
+                  </button>
+                </th>
+                <th class="col-action"></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
 
-          </thead>
-        </table>
+      <!-- Scrollable table body -->
+      <div class="table-wrapper card rounded-top-0 border-0">
+        <div class="card-body p-0">
+          <table class="table table-borderless table-hover align-middle">
+            <colgroup>
+              <col class="col-check" />
+              <col class="col-name" />
+              <col class="col-cat" />
+              <col class="col-price" />
+              <col class="col-cost" />
+              <col class="col-profit" />
+              <col class="col-action" />
+            </colgroup>
+            <tbody id="productTable">
+              <!-- Render products here -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- Scrollable table body -->
-  <div class="table-wrapper card rounded-top-0 border-0">
-    <div class="card-body p-0">
-      <table class="table table-borderless table-hover align-middle">
-        <colgroup>
-          <col class="col-check" />
-          <col class="col-name" />
-          <col class="col-cat" />
-          <col class="col-price" />
-          <col class="col-cost" />
-          <col class="col-profit" />
-          <col class="col-action" />
-        </colgroup>
-        <tbody id="productTable">
-          <!-- Render products here -->
-        </tbody>
-      </table>
+    <!-- Mobile Card View (visible on mobile only) -->
+    <div id="productContainer" class="card-container d-md-none">
+      <!-- Cards will be dynamically rendered here -->
     </div>
-  </div>
 </main>
 
 <!-- Toast -->
