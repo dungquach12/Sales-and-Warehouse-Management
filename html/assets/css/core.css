@@ -95,6 +95,12 @@ a[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
 }
 
 /* Icon */
+svg {
+  width: 1.1em;
+  height: 1.1em;
+  fill: currentColor;
+}
+
 .right-menu-icon {
   margin: 0 5px 0 5px;
 }
