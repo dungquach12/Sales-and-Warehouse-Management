@@ -1,3 +1,6 @@
+// Call another js file for shared utilities (like showToast)
+import { showLoadingState } from "./util.js";
+
 // Global state management for product page
 let isInitialLoad = true;
 
@@ -152,31 +155,57 @@ getPreferredView(mobileQuery);
 
 // -----------------------------------------------
 // Table rendering & Sorting
-async function asyncRenderTable(is_active = true) {
+async function asyncRenderTable(is_active = true, retryCount = 0) {
+    const MAX_RETRIES = 2;
+    
     if (renderAbortController) {
         renderAbortController.abort();
         renderAbortController = null;
     }
     renderAbortController = new AbortController();
 
+    showLoadingState(true, "productTable");
+
     try {
-        const res = await fetch(`/api/v1/products/${is_active ? "" : "inactive"}`, { signal: renderAbortController.signal });
+        const res = await fetch(`/api/v1/products/${is_active ? "" : "inactive"}`, { 
+            signal: renderAbortController.signal 
+        });
         const result = await res.json();
+        
         if (!result.success) {
-            showToast(result.message || "Không thể tải dữ liệu");
-            return;
+            throw new Error(result.message || "Không thể tải dữ liệu");
         }
 
         state.products = result.data;
         state.isActive = is_active;
         getPreferredView(mobileQuery);
+        
     } catch (error) {
         if (error.name === "AbortError") {
             console.log("Previous render aborted");
-        } else {
-            console.error("Failed to fetch products:", error);
-            showToast("⚠️ Không thể tải mặt hàng! Vui lòng thử lại.");
+            return;
         }
+        
+        // Retry logic
+        if (retryCount < MAX_RETRIES) {
+            console.log(`Retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+            return asyncRenderTable(is_active, retryCount + 1);
+        }
+        
+        console.error("Failed to fetch products:", error);
+        showToast("⚠️ Không thể tải mặt hàng! Vui lòng thử lại.");
+        
+        // Show empty state
+        const tbody = document.getElementById("productTable");
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">
+                <i class="bi bi-wifi-off fs-2 d-block mb-2"></i> 
+                Không thể kết nối. Vui lòng tải lại trang.
+            </td></tr>`;
+        }
+    } finally {
+        showLoadingState(false, "productTable");
     }
 }
 
@@ -403,6 +432,11 @@ async function submitProduct() {
     const price = Number(document.getElementById("inputPrice").value);
     const cost = Number(document.getElementById("inputCost").value) || 0;
 
+    if (cost > price) {
+        showToast("⚠️ Giá vốn không thể lớn hơn giá bán");
+        return;
+    }
+
     if (!productName) {
         showToast("⚠️ Vui lòng nhập tên mặt hàng");
         return;
@@ -521,6 +555,11 @@ function updateBulkBar() {
 }
 
 function openBulkDeleteModal() {
+    const count = document.querySelectorAll(".row-check:checked").length;
+    const confirmMsg = document.getElementById('bulkDeleteConfirmMsg');
+    if (confirmMsg) {
+        confirmMsg.textContent = `Bạn có chắc chắn muốn xóa ${count} mặt hàng? Hành động này không thể hoàn tác.`;
+    }
     const modal = new bootstrap.Modal(document.getElementById("bulkDeleteModal"));
     modal.show();
 }

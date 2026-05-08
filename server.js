@@ -73,6 +73,7 @@ app.use("/products", requireAuth, require("./routes/productRoutes"));
 
 // --- PROTECTED API ROUTES (JSON) ---
 app.use('/api/v1/products', requireAuthApi, require('./routes/api/v1/productApiRoutes'));
+app.use('/api/v1/report', requireAuthApi, require('./routes/api/v1/reportApiRoutes'));
 
 
 app.get('/categories', requireAuthApi,(req, res) => {
@@ -91,11 +92,10 @@ app.get('/sales', requireAuthApi, (req, res) => {
   });
 });
 
-app.get('/notifications', requireAuthApi, (req, res) => {
+app.get('/order-history', requireAuthApi, (req, res) => {
   res.render('wip', {
-    title: 'Thông báo',
-    activeMenu: 'notifications',
-    activeParent: 'productManage'
+    title: 'Lịch sử',
+    activeMenu: 'order-history',
   });
 });
 
