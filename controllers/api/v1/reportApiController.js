@@ -84,7 +84,7 @@ controller.getAllReport = async (req, res) => {
             total_price: parseFloat(order.total_price) || 0,
             total_profit: itemsByOrder[order.id]?.reduce((sum, item) => sum + (item.profit || 0), 0) || 0,
             status: order.status,
-            createdAt: order.created_at,
+            createdAt: order.createdAt,
             items: itemsByOrder[order.id] || []
         }));
         

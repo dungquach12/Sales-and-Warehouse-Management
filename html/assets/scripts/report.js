@@ -65,11 +65,8 @@ async function fetchData(period, retryCount = 0) {
     showLoadingState?.(true, "reportContainer");
     
     try {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         
-        const res = await fetch(`/api/v1/report?period=${period}`, {
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-        });
+        const res = await fetch(`/api/v1/report?period=${period}`);
         
         if (res.status === 401) {
             localStorage.removeItem('token');
@@ -82,6 +79,10 @@ async function fetchData(period, retryCount = 0) {
         
         const result = await res.json();
         state.orders = result.orders || [];
+
+        console.log(`Fetched ${state.orders.length} orders for period: ${period}`);
+        console.log('All orders:', state.orders);
+
         return state.orders;
         
     } catch (err) {
