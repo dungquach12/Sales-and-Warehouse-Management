@@ -1,6 +1,3 @@
-// Call another js file for shared utilities (like showToast)
-import { showLoadingState } from "./util.js";
-
 // Global state management for product page
 let isInitialLoad = true;
 

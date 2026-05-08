@@ -1,5 +1,3 @@
-import { showLoadingState } from "./util.js";
-
 // State management
 const state = {
     orders: [],

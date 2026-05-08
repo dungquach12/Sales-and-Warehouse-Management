@@ -1,4 +1,4 @@
-export function showLoadingState(isLoading, containerId) {
+window.showLoadingState = function(isLoading, containerId) {
     // Show spinner or skeleton screen
     const container = document.getElementById(containerId);
     if (container && isLoading) {
