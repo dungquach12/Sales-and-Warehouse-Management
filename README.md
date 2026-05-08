@@ -1,7 +1,7 @@
 # Revenue Tracker - Sales & Warehouse Management
 
 - A simple web app for managing products, customers, orders and sales reporting. Built for a small coffee shop to track inventory and revenue.
-- Link to prototype: https://sales-and-warehouse-management-dm3a.vercel.app
+- Link to prototype: https://sales-and-warehouse-management.vercel.app
 
 ## What it does
 
