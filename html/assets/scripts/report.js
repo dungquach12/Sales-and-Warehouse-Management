@@ -342,6 +342,7 @@ function handleRecentOrderClick(e) {
     }
 }
 
+// Create modal instance variable outside the function
 function showOrderDetails(order) {
     // Format date
     const orderDate = order.createdAt ? new Date(order.createdAt) : new Date();
@@ -398,26 +399,32 @@ function showOrderDetails(order) {
     // Render items
     const tbody = document.getElementById('orderItems');
     if (!order.items || order.items.length === 0) {
-        tbody.innerHTML = '<td><td colspan="5" class="text-center text-muted">Không có sản phẩm</tr>';
-        return;
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Không có sản phẩm</td></tr>';
+    } else {
+        tbody.innerHTML = order.items.map(item => {
+            const itemTotal = (item.price || 0) * (item.qty || 1);
+            return `
+                <tr>
+                    <td class="fw-semibold">${item.name}</td>
+                    <td class="text-center">${item.qty}</td>
+                    <td class="text-end">${(item.price || 0).toLocaleString('vi-VN')}đ</td>
+                    ${hasProfit ? `<td class="text-end text-success">${item.profit ? item.profit.toLocaleString('vi-VN') + 'đ' : '—'}</td>` : ''}
+                    <td class="text-end fw-semibold">${itemTotal.toLocaleString('vi-VN')}đ</td>
+                </tr>
+            `;
+        }).join('');
     }
     
-    tbody.innerHTML = order.items.map(item => {
-        const itemTotal = (item.price || 0) * (item.qty || 1);
-        return `
-            <tr>
-                <td class="fw-semibold">${item.name}</td>
-                <td class="text-center">${item.qty}</td>
-                <td class="text-end">${(item.price || 0).toLocaleString('vi-VN')}đ</td>
-                ${hasProfit ? `<td class="text-end text-success">${item.profit ? item.profit.toLocaleString('vi-VN') + 'đ' : '—'}</td>` : ''}
-                <td class="text-end fw-semibold">${itemTotal.toLocaleString('vi-VN')}đ</td>
-            </tr>
-        `;
-    }).join('');
-    
-    // Show modal
     const modalEl = document.getElementById('detailOrderModal');
-    const modal = new bootstrap.Modal(modalEl);
+    
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+    }, { once: true });
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
 }
 

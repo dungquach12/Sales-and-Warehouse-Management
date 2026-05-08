@@ -1,14 +1,13 @@
 {{#section 'head'}}
-<script type="module" src="/assets/scripts/report.js" defer></script>
+<script src="/assets/scripts/report.js" defer></script>
 {{/section}}
 
 <!-- Detail order modal -->
-<!-- Order Detail Modal -->
-<div class="modal fade" id="detailOrderModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="detailOrderModal" tabindex="-1" aria-labelledby="detailOrderModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">
+        <h5 class="modal-title" id="detailOrderModalLabel">
           <i class="bi bi-receipt me-2"></i>
           Chi tiết đơn hàng
           <span class="badge bg-secondary ms-2" id="orderDate"></span>
