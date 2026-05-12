@@ -1,9 +1,10 @@
-.pos-container {
-  max-width: 1600px;
-  margin: 0 auto;
+/* Customer autocomplete styling - same as your product page */
+#customerFeedback {
+  font-size: 0.8rem;
+  margin-top: 4px;
 }
 
-/* Product Cards */
+/* Product cards styling */
 .product-card {
   background: white;
   border-radius: 12px;
@@ -17,10 +18,6 @@
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.08);
   border-color: #dee2e6;
-}
-
-.product-card:active {
-  transform: translateY(0);
 }
 
 .product-emoji {
@@ -43,7 +40,6 @@
   color: #ffc107;
 }
 
-/* Cart Items */
 .cart-item {
   display: flex;
   justify-content: space-between;
@@ -81,12 +77,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  transition: all 0.1s ease;
-}
-
-.quantity-btn:active {
-  transform: scale(0.95);
 }
 
 .cart-item-quantity {
@@ -110,66 +100,9 @@
   border: none;
   padding: 4px 8px;
   border-radius: 6px;
-  transition: all 0.1s ease;
 }
 
 .cart-item-remove:hover {
   background: #dc3545;
   color: white;
-}
-
-/* Stat cards (matching report page) */
-.stat-card {
-  border: none;
-  border-radius: 12px;
-  transition: transform 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-}
-
-/* Period buttons (matching report page) */
-.period-btn.active {
-  background: #212529;
-  color: white;
-  border-color: #212529;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .sticky-top {
-    position: relative !important;
-    top: 0 !important;
-    margin-top: 16px;
-  }
-}
-
-@media (max-width: 576px) {
-  .product-card {
-    padding: 0.5rem;
-  }
-  
-  .product-emoji {
-    font-size: 1.5rem;
-  }
-  
-  .product-name {
-    font-size: 0.7rem;
-  }
-  
-  .cart-item-total {
-    min-width: 60px;
-    font-size: 0.75rem;
-  }
 }

@@ -1,20 +1,19 @@
-// Global state management for POS page
-let isInitialLoad = true;
-let renderAbortController = null;
-let searchTimeout = null;
-
+// State
 const state = {
   products: [],
   cart: [],
   searchTerm: '',
   selectedCategory: 'all',
-  isLoading: false
+  customers: [],
+  selectedCustomerId: null
 };
 
 // DOM Elements
 const productGrid = document.getElementById('productGrid');
 const cartItems = document.getElementById('cartItems');
 const customerNameInput = document.getElementById('customerName');
+const customerList = document.getElementById('customerList');
+const customerFeedback = document.getElementById('customerFeedback');
 const orderMethodSelect = document.getElementById('orderMethod');
 const paymentMethodSelect = document.getElementById('paymentMethod');
 const submitBtn = document.getElementById('submitOrderBtn');
@@ -32,43 +31,133 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Show/hide loading state
-function showLoadingState(isLoading, containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  
-  if (isLoading) {
-    container.innerHTML = `
-      <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="text-muted small mt-2">Đang tải sản phẩm...</p>
-      </div>
-    `;
+// --- CUSTOMER FUNCTIONS (Matching product page pattern) ---
+
+// Setup customer datalist (like setupCategoryAndNameAutocomplete)
+async function setupCustomerAutocomplete() {
+  try {
+    const response = await fetch('/api/v1/customer');
+    const result = await response.json();
+    
+    let customers = [];
+    if (result.success) {
+      customers = result.data;
+    } else if (Array.isArray(result)) {
+      customers = result;
+    }
+    
+    state.customers = customers;
+    
+    // Populate datalist with customer names + phone numbers
+    const customerOptions = customers.map(customer => 
+      `<option value="${escapeHtml(customer.name)}${customer.phone ? ` (${customer.phone})` : ''}" data-id="${customer.id}" data-phone="${customer.phone || ''}">`
+    ).join('');
+    
+    customerList.innerHTML = customerOptions;
+    
+    return customers;
+  } catch (error) {
+    console.error("Failed to fetch customers:", error);
+    customerFeedback.textContent = "⚠️ Không thể tải danh sách khách hàng";
+    customerFeedback.className = "form-text text-danger";
+    return [];
   }
 }
 
-// Fetch products from API (matching product.js pattern)
+// Handle customer selection (like product page name validation)
+customerNameInput.addEventListener('input', async function() {
+  const name = this.value.trim();
+  const selectedOption = Array.from(customerList.options).find(opt => 
+    opt.value === name || opt.value.startsWith(name + ' (')
+  );
+  
+  if (selectedOption && selectedOption.dataset.id) {
+    // Customer selected from datalist
+    state.selectedCustomerId = parseInt(selectedOption.dataset.id);
+    customerFeedback.textContent = "✓ Khách hàng đã chọn";
+    customerFeedback.className = "form-text text-success";
+  } else if (name) {
+    // New customer - not in list
+    state.selectedCustomerId = null;
+    customerFeedback.innerHTML = '<i class="bi bi-person-plus me-1"></i>Khách hàng mới sẽ được tạo khi đặt hàng';
+    customerFeedback.className = "form-text text-info";
+  } else {
+    state.selectedCustomerId = null;
+    customerFeedback.textContent = "";
+    customerFeedback.className = "form-text";
+  }
+});
+
+// Create new customer (like submitProduct)
+async function createNewCustomer() {
+  const name = customerNameInput.value.trim();
+  
+  if (!name) {
+    customerFeedback.textContent = "⚠️ Vui lòng nhập tên khách hàng";
+    customerFeedback.className = "form-text text-danger";
+    return null;
+  }
+  
+  // Check if customer already exists
+  const existing = state.customers.find(c => 
+    c.name.toLowerCase() === name.toLowerCase()
+  );
+  
+  if (existing) {
+    state.selectedCustomerId = existing.id;
+    customerFeedback.textContent = "✓ Khách hàng đã tồn tại";
+    customerFeedback.className = "form-text text-success";
+    return existing;
+  }
+  
+  // Create new customer
+  try {
+    const phone = prompt('Nhập số điện thoại (không bắt buộc):');
+    
+    const response = await fetch('/api/v1/customer/create-customer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone: phone || '' })
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok && (result.success || result.customer)) {
+      const newCustomer = result.customer || result.data;
+      state.customers.push(newCustomer);
+      state.selectedCustomerId = newCustomer.id;
+      
+      // Update datalist
+      customerList.innerHTML += `<option value="${escapeHtml(newCustomer.name)}${newCustomer.phone ? ` (${newCustomer.phone})` : ''}" data-id="${newCustomer.id}" data-phone="${newCustomer.phone || ''}">`;
+      
+      customerFeedback.textContent = "✓ Đã tạo khách hàng mới";
+      customerFeedback.className = "form-text text-success";
+      
+      showToast(`✓ Đã tạo khách hàng: ${name}`);
+      return newCustomer;
+    } else {
+      throw new Error(result.error || 'Failed to create customer');
+    }
+  } catch (error) {
+    console.error('Failed to create customer:', error);
+    customerFeedback.textContent = `⚠️ ${error.message}`;
+    customerFeedback.className = "form-text text-danger";
+    return null;
+  }
+}
+
+// --- PRODUCT FUNCTIONS ---
+
+// Fetch products from API
 async function fetchProducts(retryCount = 0) {
   const MAX_RETRIES = 2;
-  
-  // Cancel previous render
-  if (renderAbortController) {
-    renderAbortController.abort();
-    renderAbortController = null;
-  }
-  renderAbortController = new AbortController();
   
   showLoadingState(true, 'productGrid');
 
   try {
-    const response = await fetch('/api/v1/products', { 
-      signal: renderAbortController.signal 
-    });
+    const response = await fetch('/api/v1/products');
     const result = await response.json();
     
-    // Handle both response formats (success wrapper or direct array)
     let products = Array.isArray(result) ? result : (result.success ? result.data : []);
     
     if (!products.length && result.success === false) {
@@ -80,14 +169,7 @@ async function fetchProducts(retryCount = 0) {
     await loadCategories();
     
   } catch (error) {
-    if (error.name === "AbortError") {
-      console.log("Previous render aborted");
-      return;
-    }
-    
-    // Retry logic
     if (retryCount < MAX_RETRIES) {
-      console.log(`Retrying... (${retryCount + 1}/${MAX_RETRIES})`);
       await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
       return fetchProducts(retryCount + 1);
     }
@@ -95,7 +177,6 @@ async function fetchProducts(retryCount = 0) {
     console.error("Failed to fetch products:", error);
     showToast("⚠️ Không thể tải sản phẩm! Vui lòng thử lại.");
     
-    // Show empty state
     if (productGrid) {
       productGrid.innerHTML = `
         <div class="col-12 text-center py-5">
@@ -104,12 +185,12 @@ async function fetchProducts(retryCount = 0) {
         </div>
       `;
     }
+  } finally {
+    showLoadingState(false, 'productGrid');
   }
 }
 
-async function loadCategories(retryCount = 0) {
-  const MAX_RETRIES = 2;
-  
+async function loadCategories() {
   try {
     const response = await fetch('/api/v1/products/category');
     const result = await response.json();
@@ -119,25 +200,17 @@ async function loadCategories(retryCount = 0) {
       categories = result.data;
     } else if (Array.isArray(result)) {
       categories = result;
-    } else {
-      throw new Error(result.message || "Failed to fetch categories");
     }
     
     categoryFilter.innerHTML = '<option value="all">📂 Tất cả danh mục</option>' +
       categories.map(cat => `<option value="${cat.id}">${cat.emoji || '📁'} ${escapeHtml(cat.name)}</option>`).join('');
       
   } catch (error) {
-    if (retryCount < MAX_RETRIES) {
-      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
-      return loadCategories(retryCount + 1);
-    }
     console.error("Failed to load categories:", error);
-    // Keep default option only
     categoryFilter.innerHTML = '<option value="all">📂 Tất cả danh mục</option>';
   }
 }
 
-// Filter products based on search and category
 function getFilteredProducts() {
   let filtered = [...state.products];
   
@@ -156,16 +229,22 @@ function getFilteredProducts() {
   return filtered;
 }
 
-// Debounced search handler (matching product.js pattern)
-function handleSearch() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    state.searchTerm = searchInput.value;
-    renderProductGrid();
-  }, 250);
+function showLoadingState(isLoading, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  if (isLoading) {
+    container.innerHTML = `
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted small mt-2">Đang tải sản phẩm...</p>
+      </div>
+    `;
+  }
 }
 
-// Render product grid (optimized, matching product.js patterns)
 function renderProductGrid() {
   const products = getFilteredProducts();
   
@@ -181,7 +260,6 @@ function renderProductGrid() {
     return;
   }
   
-  // Use DocumentFragment for better performance
   const fragment = document.createDocumentFragment();
   const rowDiv = document.createElement('div');
   rowDiv.className = 'row g-2';
@@ -192,7 +270,7 @@ function renderProductGrid() {
     col.innerHTML = `
       <div class="product-card" data-id="${product.id}">
         <div class="text-center">
-          <div class="product-emoji">${escapeHtml(product.image || product.emoji || '🍵')}</div>
+          <div class="product-emoji">${escapeHtml(product.image || product.emoji || '☕')}</div>
           <div class="product-name">${escapeHtml(product.name)}</div>
           <div class="product-price">${formatPrice(product.price)}</div>
           <button class="btn btn-primary btn-sm mt-2 add-to-cart-btn" data-id="${product.id}">
@@ -208,7 +286,6 @@ function renderProductGrid() {
   productGrid.innerHTML = '';
   productGrid.appendChild(fragment);
   
-  // Attach event listeners (better than onclick attributes)
   document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
     btn.removeEventListener('click', handleAddToCart);
     btn.addEventListener('click', handleAddToCart);
@@ -218,11 +295,6 @@ function renderProductGrid() {
 function handleAddToCart(e) {
   const btn = e.currentTarget;
   const productId = document.querySelector(`.product-card[data-id="${btn.dataset.id}"]`)?.dataset.id;
-  if (productId) {
-    addToCart(parseInt(productId));
-  } else {
-    showToast('Không tìm thấy sản phẩm', 2000);
-  }
   addToCart(productId);
 }
 
@@ -238,7 +310,7 @@ function addToCart(productId) {
     state.cart.push({
       id: product.id,
       name: product.name,
-      emoji: product.image || product.emoji || '🍵',
+      emoji: product.image || product.emoji || '☕',
       price: product.price,
       quantity: 1
     });
@@ -267,14 +339,13 @@ function renderCart() {
     return;
   }
   
-  // Use DocumentFragment for better performance
   const fragment = document.createDocumentFragment();
   
   state.cart.forEach(item => {
     const div = document.createElement('div');
     div.className = 'cart-item';
     div.innerHTML = `
-      <div class="cart-item-info" data-id="${item.id}">
+      <div class="cart-item-info">
         <div class="cart-item-name">${escapeHtml(item.emoji || '')} ${escapeHtml(item.name)}</div>
         <div class="cart-item-price">${formatPrice(item.price)}</div>
       </div>
@@ -298,13 +369,11 @@ function renderCart() {
   cartContainer.innerHTML = '';
   cartContainer.appendChild(fragment);
   
-  // Attach event listeners for quantity buttons
   document.querySelectorAll('.quantity-btn').forEach(btn => {
     btn.removeEventListener('click', handleQuantityChange);
     btn.addEventListener('click', handleQuantityChange);
   });
   
-  // Attach event listeners for remove buttons
   document.querySelectorAll('.cart-item-remove').forEach(btn => {
     btn.removeEventListener('click', handleRemoveItem);
     btn.addEventListener('click', handleRemoveItem);
@@ -319,22 +388,14 @@ function renderCart() {
 
 function handleQuantityChange(e) {
   const btn = e.currentTarget;
-  const productId = document.querySelector(`.cart-item-info[data-id="${btn.dataset.id}"]`)?.dataset.id;
-  if (!productId) {
-    showToast('Không tìm thấy sản phẩm trong giỏ', 2000);
-    return;
-  }
+  const productId = document.querySelector(`.cart-item-remove[data-id="${btn.dataset.id}"]`)?.dataset.id;
   const delta = parseInt(btn.dataset.delta);
   updateQuantity(productId, delta);
 }
 
 function handleRemoveItem(e) {
   const btn = e.currentTarget;
-  const productId = document.querySelector(`.cart-item-info[data-id="${btn.dataset.id}"]`)?.dataset.id;
-  if (!productId) {
-    showToast('Không tìm thấy sản phẩm trong giỏ', 2000);
-    return;
-}
+  const productId = document.querySelector(`.cart-item-remove[data-id="${btn.dataset.id}"]`)?.dataset.id;
   removeFromCart(productId);
 }
 
@@ -364,17 +425,29 @@ function clearCart() {
   }
 }
 
+// --- SUBMIT ORDER ---
 async function submitOrder() {
   if (state.cart.length === 0) {
     showToast('Vui lòng thêm sản phẩm vào đơn hàng', 2000);
     return;
   }
   
-  // Validate customer name (optional but sanitize)
   const customerName = customerNameInput.value.trim();
   const sanitizedName = customerName ? escapeHtml(customerName) : 'Khách lẻ';
   
+  // Get or create customer
+  let customerId = state.selectedCustomerId;
+  
+  if (customerName && !customerId) {
+    // Customer not selected from list - create new
+    const newCustomer = await createNewCustomer();
+    if (newCustomer) {
+      customerId = newCustomer.id;
+    }
+  }
+  
   const orderData = {
+    customerId: customerId || null,
     customerName: sanitizedName,
     orderMethod: orderMethodSelect.value,
     paymentMethod: paymentMethodSelect.value,
@@ -383,16 +456,17 @@ async function submitOrder() {
       quantity: item.quantity,
       price: item.price
     })),
-    total: state.cart.reduce((sum, i) => sum + (i.price * i.quantity), 0)
+    total: state.cart.reduce((sum, i) => sum + (i.price * i.quantity), 0),
+    userId: window.currentUser?.id || null
   };
   
-  // Disable submit button to prevent double submission
+  // Disable submit button
   submitBtn.disabled = true;
   const originalBtnHTML = submitBtn.innerHTML;
   submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
   
   try {
-    const response = await fetch('/api/v1/orders', {
+    const response = await fetch('/api/v1/order/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
@@ -401,15 +475,18 @@ async function submitOrder() {
     const result = await response.json();
     
     if (!response.ok || (result.success === false)) {
-      throw new Error(result.message || 'Failed to create order');
+      throw new Error(result.message || result.error || 'Failed to create order');
     }
     
     const orderId = result.orderId || result.data?.id || 'Mới';
-    showToast(`✓ Đơn hàng #${orderId} đã được tạo!`, 3000);
+    const customerInfo = customerId ? ` cho khách hàng #${customerId}` : '';
+    showToast(`✓ Đơn hàng #${orderId}${customerInfo} đã được tạo!`, 3000);
     
     // Reset cart and form
     state.cart = [];
     customerNameInput.value = '';
+    state.selectedCustomerId = null;
+    customerFeedback.textContent = '';
     renderCart();
     
   } catch (error) {
@@ -447,8 +524,15 @@ function showToast(msg, delay = 2000) {
   toast.show();
 }
 
-// Event listeners with debouncing (matching product.js pattern)
-searchInput.addEventListener('input', handleSearch);
+// Event listeners
+let searchTimeout = null;
+searchInput.addEventListener('input', (e) => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    state.searchTerm = e.target.value;
+    renderProductGrid();
+  }, 250);
+});
 
 categoryFilter.addEventListener('change', (e) => {
   state.selectedCategory = e.target.value;
@@ -458,51 +542,10 @@ categoryFilter.addEventListener('change', (e) => {
 submitBtn.addEventListener('click', submitOrder);
 clearBtn.addEventListener('click', clearCart);
 
-// Keyboard shortcut: Ctrl+Shift+C to clear cart
-document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-    e.preventDefault();
-    clearCart();
-  }
-});
-
-// Save cart to sessionStorage before page unload (recover from accidental refresh)
-window.addEventListener('beforeunload', () => {
-  if (state.cart.length > 0) {
-    sessionStorage.setItem('pos_cart', JSON.stringify({
-      cart: state.cart,
-      customerName: customerNameInput.value,
-      orderMethod: orderMethodSelect.value,
-      paymentMethod: paymentMethodSelect.value
-    }));
-  }
-});
-
-// Restore cart from sessionStorage on page load
-function restoreCartFromSession() {
-  const saved = sessionStorage.getItem('pos_cart');
-  if (saved) {
-    try {
-      const data = JSON.parse(saved);
-      if (data.cart && data.cart.length > 0) {
-        state.cart = data.cart;
-        customerNameInput.value = data.customerName || '';
-        if (data.orderMethod) orderMethodSelect.value = data.orderMethod;
-        if (data.paymentMethod) paymentMethodSelect.value = data.paymentMethod;
-        renderCart();
-        showToast('🔄 Đã khôi phục đơn hàng từ phiên trước', 3000);
-        sessionStorage.removeItem('pos_cart');
-      }
-    } catch (e) {
-      console.error('Failed to restore cart:', e);
-    }
-  }
-}
-
 // Initialize
 async function init() {
   await fetchProducts();
-  restoreCartFromSession();
+  await setupCustomerAutocomplete();
 }
 
 init();
