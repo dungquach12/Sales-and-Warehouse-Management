@@ -104,7 +104,6 @@ app.get('/menu', requireAuthApi, (req, res) => {
   res.render('wip', {
     title: 'Menu',
     activeMenu: 'menu',
-    activeParent: 'productManage',
   });
 });
 
