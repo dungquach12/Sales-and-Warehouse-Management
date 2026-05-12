@@ -69,11 +69,13 @@ app.use('/api/v1/auth', require('./routes/api/v1/authApiRoutes'));
 // --- PROTECTED PAGE ROUTES (SSR / HTML) ---
 app.use("/report", requireAuth,require("./routes/reportRoutes"));
 app.use("/products", requireAuth, require("./routes/productRoutes"));
+app.use("/order", requireAuth, require("./routes/orderRoutes"));
 
 
 // --- PROTECTED API ROUTES (JSON) ---
 app.use('/api/v1/products', requireAuthApi, require('./routes/api/v1/productApiRoutes'));
 app.use('/api/v1/report', requireAuthApi, require('./routes/api/v1/reportApiRoutes'));
+app.use('/api/v1/order', requireAuthApi, require('./routes/api/v1/orderApiRoutes'));
 
 
 app.get('/categories', requireAuthApi,(req, res) => {
@@ -81,14 +83,6 @@ app.get('/categories', requireAuthApi,(req, res) => {
     title: 'Mẫu mã',
     activeMenu: 'categories',
     activeParent: 'productManage'
-  });
-});
-
-app.get('/sales', requireAuthApi, (req, res) => {
-  res.render('sales', {
-    title: 'Bán hàng',
-    activeMenu: 'sales',
-    pageCSS: 'sales.css'
   });
 });
 
