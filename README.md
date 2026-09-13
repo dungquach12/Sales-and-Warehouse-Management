@@ -2,6 +2,7 @@
 
 - A simple web app for managing products, customers, orders and sales reporting. Built for a small coffee shop to track inventory and revenue.
 - Link to prototype: https://sales-and-warehouse-management.vercel.app
+- Demo login: `staff1` / `123456`
 
 ## What it does
 
